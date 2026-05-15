@@ -1,0 +1,102 @@
+{
+  "findings": [
+    {
+      "id": "raw-001",
+      "file": "src/routes/upload.ts",
+      "line_start": 8,
+      "line_end": 15,
+      "category": "security",
+      "subcategory": "rce",
+      "severity": "critical",
+      "title": "Multer accepts arbitrary file extensions without validation",
+      "explanation": "The multer configuration does not include a fileFilter to validate file extensions. An attacker can upload executable files (.exe, .sh, .php, .jsp) which could lead to remote code execution if the upload directory is publicly accessible. The storage configuration on line 9 saves files directly to 'public/uploads' with the original filename (line 11-12), making uploaded executables accessible via HTTP. Combined with the lack of file type validation, this creates a critical RCE vulnerability.",
+      "code_snippet": "const storage = multer.diskStorage({\n  destination: 'public/uploads',\n  filename: (req, file, cb) => {\n    cb(null, file.originalname);\n  }\n});\n\nconst upload = multer({ storage });",
+      "suggested_fix": "Add fileFilter to whitelist safe extensions: const upload = multer({ storage, fileFilter: (req, file, cb) => { const allowed = ['.jpg', '.jpeg', '.png', '.gif', '.webp']; const ext = path.extname(file.originalname).toLowerCase(); cb(null, allowed.includes(ext)); }, limits: { fileSize: 5 * 1024 * 1024 } });",
+      "references": ["CWE-434", "OWASP A04:2021 - Insecure Design"]
+    },
+    {
+      "id": "raw-002",
+      "file": "src/routes/upload.ts",
+      "line_start": 11,
+      "line_end": 12,
+      "category": "security",
+      "subcategory": "path_traversal",
+      "severity": "high",
+      "title": "Filename uses unsanitized user input allowing path traversal",
+      "explanation": "The filename callback on line 11-12 uses file.originalname directly without sanitization. An attacker can upload a file with a malicious name like '../../../etc/passwd' or '..\\..\\..\\windows\\system32\\config\\sam' to write files outside the intended upload directory. This could overwrite critical system files or application configuration files.",
+      "code_snippet": "filename: (req, file, cb) => {\n  cb(null, file.originalname);\n}",
+      "suggested_fix": "Sanitize filename and use UUID: import { v4 as uuidv4 } from 'uuid'; filename: (req, file, cb) => { const ext = path.extname(file.originalname); const safeName = `${uuidv4()}${ext}`; cb(null, safeName); }",
+      "references": ["CWE-22", "OWASP A01:2021 - Broken Access Control"]
+    },
+    {
+      "id": "raw-003",
+      "file": "src/routes/upload.ts",
+      "line_start": 18,
+      "line_end": 44,
+      "category": "security",
+      "subcategory": "auth",
+      "severity": "high",
+      "title": "Upload endpoint has no authentication or authorization",
+      "explanation": "The POST /avatar endpoint on line 18 has no authentication middleware. Any unauthenticated user can upload files and modify any user's avatar by providing an arbitrary userId in the request body (line 25). This allows attackers to: 1) Fill up disk space with unlimited uploads, 2) Deface user profiles by changing their avatars, 3) Upload malicious files without accountability.",
+      "code_snippet": "router.post('/avatar', upload.single('avatar'), async (req, res) => {\n  // No auth check\n  const userId = req.body.userId; // Attacker-controlled\n  ...\n});",
+      "suggested_fix": "Add authentication middleware and use authenticated user ID: router.post('/avatar', requireAuth, upload.single('avatar'), async (req, res) => { const userId = req.user.id; // From auth token, not request body",
+      "references": ["CWE-306", "OWASP A07:2021 - Identification and Authentication Failures"]
+    },
+    {
+      "id": "raw-004",
+      "file": "src/routes/upload.ts",
+      "line_start": 29,
+      "line_end": 38,
+      "category": "db",
+      "subcategory": "transaction",
+      "severity": "medium",
+      "title": "Database updates lack transaction wrapping",
+      "explanation": "The two database queries on lines 29-32 and 35-38 are not wrapped in a transaction. If the second query (INSERT into upload_logs) fails, the user's avatar_url will be updated but no log entry will exist, creating data inconsistency. If the application crashes between the two queries, the database will be in an inconsistent state with no way to track which upload caused the avatar change.",
+      "code_snippet": "await db.query(\n  'UPDATE users SET avatar_url = $1 WHERE id = $2',\n  [avatarUrl, userId]\n);\n\n// If this fails, avatar is updated but no log exists\nawait db.query(\n  'INSERT INTO upload_logs (user_id, filename, uploaded_at) VALUES ($1, $2, NOW())',\n  [userId, file.filename]\n);",
+      "suggested_fix": "Wrap in transaction: const client = await db.getClient(); try { await client.query('BEGIN'); await client.query('UPDATE users SET avatar_url = $1 WHERE id = $2', [avatarUrl, userId]); await client.query('INSERT INTO upload_logs (user_id, filename, uploaded_at) VALUES ($1, $2, NOW())', [userId, file.filename]); await client.query('COMMIT'); } catch (e) { await client.query('ROLLBACK'); throw e; } finally { client.release(); }",
+      "references": []
+    },
+    {
+      "id": "raw-005",
+      "file": "src/routes/upload.ts",
+      "line_start": 18,
+      "line_end": 44,
+      "category": "tests",
+      "subcategory": "coverage",
+      "severity": "medium",
+      "title": "No test coverage for new upload endpoint",
+      "explanation": "The new /avatar endpoint has no associated test file. Critical security scenarios are untested: 1) Uploading files with malicious extensions (.exe, .php), 2) Uploading files with path traversal names (../../etc/passwd), 3) Uploading without authentication, 4) Uploading files exceeding size limits, 5) Database transaction rollback on failure. Without tests, regressions in security controls will go undetected.",
+      "code_snippet": "",
+      "suggested_fix": "Create tests/routes/upload.test.ts with test cases for: malicious file extensions, path traversal attempts, unauthenticated requests, file size limits, database transaction failures, and successful upload flow.",
+      "references": []
+    },
+    {
+      "id": "raw-006",
+      "file": "src/routes/upload.ts",
+      "line_start": 18,
+      "line_end": 44,
+      "category": "ux",
+      "subcategory": "states",
+      "severity": "low",
+      "title": "Missing error handling for database failures",
+      "explanation": "The endpoint does not handle database errors gracefully. If the UPDATE or INSERT queries fail (lines 29-38), the unhandled promise rejection will crash the Node.js process or return a generic 500 error. Users will see a cryptic error message instead of a helpful message like 'Failed to save avatar. Please try again.' This creates a poor user experience during transient database issues.",
+      "code_snippet": "await db.query(\n  'UPDATE users SET avatar_url = $1 WHERE id = $2',\n  [avatarUrl, userId]\n); // No try-catch",
+      "suggested_fix": "Add try-catch with user-friendly error: try { await db.query(...); } catch (error) { logger.error('Avatar upload DB error:', error); return res.status(500).json({ error: 'Failed to save avatar. Please try again later.' }); }",
+      "references": []
+    },
+    {
+      "id": "raw-007",
+      "file": "src/routes/upload.ts",
+      "line_start": 1,
+      "line_end": 45,
+      "category": "docs",
+      "subcategory": "missing",
+      "severity": "low",
+      "title": "No JSDoc or OpenAPI documentation for upload endpoint",
+      "explanation": "The new upload endpoint lacks documentation. There is no JSDoc comment explaining: 1) What file types are accepted (currently all, which is a bug), 2) Maximum file size (currently unlimited), 3) Authentication requirements (currently none, which is a bug), 4) Request body schema (userId field), 5) Response schema. Frontend developers will have to read the implementation to understand the API contract.",
+      "code_snippet": "",
+      "suggested_fix": "Add JSDoc: /**\n * Upload user avatar\n * @route POST /api/upload/avatar\n * @auth Required\n * @body {file} avatar - Image file (jpg, png, gif, webp, max 5MB)\n * @returns {object} { success: boolean, url: string }\n */",
+      "references": []
+    }
+  ]
+}

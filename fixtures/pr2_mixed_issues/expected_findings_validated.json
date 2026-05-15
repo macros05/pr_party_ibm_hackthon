@@ -1,0 +1,132 @@
+{
+  "findings": [
+    {
+      "id": "raw-001",
+      "category": "performance",
+      "severity": "high",
+      "title": "N+1 Query Problem in User Search",
+      "description": "The search endpoint fetches users in one query, then loops through each user to fetch their profile individually. This creates N+1 database queries which will cause severe performance degradation as the user base grows.",
+      "file_path": "src/api/users.ts",
+      "line_start": 49,
+      "line_end": 55,
+      "code_snippet": "    // Fetch profile for each user (N+1 query issue)\n    const usersWithProfiles = [];\n    for (const user of users.rows) {\n      const profile = await queryOne(\n        'SELECT bio, avatar_url FROM user_profiles WHERE user_id = $1',\n        [user.id]\n      );",
+      "suggestion": "Use a JOIN query or batch loading to fetch all profiles in a single query: `SELECT u.*, p.bio, p.avatar_url FROM users u LEFT JOIN user_profiles p ON u.id = p.user_id WHERE ...`",
+      "references": [
+        "https://stackoverflow.com/questions/97197/what-is-the-n1-selects-problem"
+      ],
+      "validation_notes": "Confirmed: Clear N+1 pattern visible in diff. The loop at lines 49-55 executes a separate query for each user. Context shows db.ts has transaction() helper available but not used."
+    },
+    {
+      "id": "raw-002",
+      "category": "performance",
+      "severity": "medium",
+      "title": "Missing Database Index on Email Column",
+      "description": "The search query uses LIKE on the email column without an index. This will result in full table scans and slow query performance as the users table grows.",
+      "file_path": "src/api/users.ts",
+      "line_start": 28,
+      "line_end": 30,
+      "code_snippet": "    if (email) {\n      params.push(`%${email}%`);\n      sql += ` AND email LIKE $${params.length}`;",
+      "suggestion": "Add a database index on the email column: `CREATE INDEX idx_users_email ON users(email);` or use a full-text search solution for better performance with LIKE queries.",
+      "references": [
+        "https://www.postgresql.org/docs/current/indexes-types.html"
+      ],
+      "validation_notes": "Confirmed: LIKE query on email column visible in diff. No migration file or index creation in the PR. This is a legitimate performance concern for production."
+    },
+    {
+      "id": "raw-003",
+      "category": "accessibility",
+      "severity": "medium",
+      "title": "Missing Accessibility Attributes on Search Input",
+      "description": "The search input lacks proper ARIA labels and keyboard navigation support. Screen reader users won't know what the input is for, and keyboard-only users can't navigate the results effectively.",
+      "file_path": "src/components/UserSearch.tsx",
+      "line_start": 33,
+      "line_end": 38,
+      "code_snippet": "      <input\n        type=\"text\"\n        placeholder=\"Search by email\"\n        value={filters.email}\n        onChange={(e) => setFilters({ ...filters, email: e.target.value })}\n      />",
+      "suggestion": "Add aria-label=\"Search users by email\" to the input, implement keyboard navigation (arrow keys) for results, and add role=\"search\" to the container div.",
+      "references": [
+        "https://www.w3.org/WAI/ARIA/apg/patterns/combobox/"
+      ],
+      "validation_notes": "Confirmed: Input element in diff has no aria-label, aria-describedby, or role attributes. Context shows UserProfile.tsx has proper accessibility (aria-label on role badge), making this inconsistency more notable."
+    },
+    {
+      "id": "raw-004",
+      "category": "error_handling",
+      "severity": "medium",
+      "title": "Inconsistent Error Handling and Missing Logging",
+      "description": "The error handling returns a generic 500 status for all errors without distinguishing between client errors (400) and server errors (500). Additionally, there's no error logging which makes debugging production issues difficult.",
+      "file_path": "src/api/users.ts",
+      "line_start": 59,
+      "line_end": 62,
+      "code_snippet": "  } catch (error) {\n    // Inconsistent error handling\n    res.status(500).json({ error: 'Search failed' });\n  }",
+      "suggestion": "Implement proper error classification: return 400 for validation errors, 500 for server errors. Add structured logging: `logger.error('Search failed', { error, filters: req.query });`",
+      "references": [
+        "https://www.rfc-editor.org/rfc/rfc7231#section-6.5"
+      ],
+      "validation_notes": "Confirmed: Generic catch block with 500 status visible in diff. No error logging, no error type checking. The existing /users/:id endpoint (visible in diff context) has similar issues, showing a pattern of poor error handling."
+    },
+    {
+      "id": "raw-005",
+      "category": "testing",
+      "severity": "medium",
+      "title": "Missing Edge Case Tests for Search Feature",
+      "description": "The new search endpoint lacks tests for critical edge cases: empty results, special characters in search terms, pagination boundaries, and concurrent requests. This increases the risk of bugs in production.",
+      "file_path": "src/api/users.ts",
+      "line_start": 19,
+      "line_end": 62,
+      "code_snippet": "// New search endpoint with filters\nrouter.get('/users/search', async (req, res) => {",
+      "suggestion": "Add test cases for: 1) Empty search results, 2) SQL injection attempts via search params, 3) Page number edge cases (0, negative, beyond max), 4) Special characters (%, _, \\), 5) Concurrent search requests.",
+      "references": [
+        "https://jestjs.io/docs/api"
+      ],
+      "validation_notes": "Confirmed: No test files added in this PR (diff shows only src/api/users.ts, src/components/UserSearch.tsx, src/db.ts). Package.json shows jest is available but not used for this feature."
+    },
+    {
+      "id": "raw-006",
+      "category": "documentation",
+      "severity": "low",
+      "title": "API Documentation Missing New Filter Parameters",
+      "description": "The API documentation doesn't mention the new filter parameters (email, name, role, page) added to the search endpoint. This will confuse API consumers and lead to support requests.",
+      "file_path": "src/api/users.ts",
+      "line_start": 19,
+      "line_end": 22,
+      "code_snippet": "// New search endpoint with filters\nrouter.get('/users/search', async (req, res) => {\n  try {\n    const { email, name, role, page = 1 } = req.query;",
+      "suggestion": "Add JSDoc comments documenting all query parameters, their types, and examples: `@param {string} [email] - Filter by email (partial match)` or update OpenAPI/Swagger spec.",
+      "references": [
+        "https://jsdoc.app/tags-param.html"
+      ],
+      "validation_notes": "Confirmed: Only a basic comment '// New search endpoint with filters' visible in diff. No JSDoc, no parameter documentation. The existing /users/:id endpoint also lacks documentation, showing a pattern."
+    },
+    {
+      "id": "raw-007",
+      "category": "code_quality",
+      "severity": "low",
+      "title": "Magic Number for Page Size",
+      "description": "The page size is hardcoded as 20 in multiple places without using a named constant. This makes it difficult to change the page size consistently and reduces code maintainability.",
+      "file_path": "src/api/users.ts",
+      "line_start": 43,
+      "line_end": 44,
+      "code_snippet": "    const offset = (Number(page) - 1) * 20;\n    sql += ` LIMIT 20 OFFSET ${offset}`;",
+      "suggestion": "Define a constant at the top of the file: `const DEFAULT_PAGE_SIZE = 20;` and use it in both places. Consider making it configurable via environment variable.",
+      "references": [
+        "https://refactoring.guru/smells/magic-numbers"
+      ],
+      "validation_notes": "Confirmed: Number 20 appears twice in lines 43-44 of diff without a named constant. This is a minor but legitimate code quality issue."
+    },
+    {
+      "id": "raw-008",
+      "category": "code_quality",
+      "severity": "low",
+      "title": "Inconsistent Naming Convention",
+      "description": "The code mixes camelCase (setResults, setFilters) and snake_case (set_loading) naming conventions in the same component. This violates JavaScript/TypeScript conventions and reduces code readability.",
+      "file_path": "src/components/UserSearch.tsx",
+      "line_start": 16,
+      "line_end": 28,
+      "code_snippet": "  const [results, setResults] = useState([]);\n  const [loading, set_loading] = useState(false);\n\n  const handleSearch = async () => {\n    set_loading(true);",
+      "suggestion": "Rename `set_loading` to `setLoading` to match JavaScript/TypeScript conventions and maintain consistency with other state setters in the component.",
+      "references": [
+        "https://google.github.io/styleguide/jsguide.html#naming"
+      ],
+      "validation_notes": "Confirmed: Line 16 shows 'set_loading' (snake_case) while line 15 shows 'setResults' (camelCase) in the same component. Clear inconsistency visible in diff."
+    }
+  ]
+}

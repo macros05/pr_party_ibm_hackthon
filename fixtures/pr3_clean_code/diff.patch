@@ -1,0 +1,314 @@
+diff --git a/src/api/auth.ts b/src/api/auth.ts
+index 1a2b3c4..9e8f7a1 100644
+--- a/src/api/auth.ts
++++ b/src/api/auth.ts
+@@ -1,6 +1,8 @@
+ import { Router } from 'express';
+-import { hashPassword, comparePassword } from '../utils/auth';
+-import { query } from '../db';
++import { hashPassword, comparePassword, generateResetToken, hashToken } from '../utils/auth';
++import { query, transaction } from '../db';
++import { sendPasswordResetEmail } from '../services/email';
++import { BadRequestError, NotFoundError } from '../utils/errors';
+ 
+ const router = Router();
+ 
+@@ -25,4 +27,89 @@ router.post('/login', async (req, res) => {
+   }
+ });
+ 
++/**
++ * Request a password reset email
++ * @route POST /auth/reset-password/request
++ * @param {string} email - User's email address
++ * @returns {object} Success message (no user enumeration)
++ */
++router.post('/reset-password/request', async (req, res, next) => {
++  try {
++    const { email } = req.body;
++    
++    if (!email || !email.includes('@')) {
++      throw new BadRequestError('Valid email is required');
++    }
++    
++    // Always return success to prevent user enumeration
++    // Actual email only sent if user exists
++    await transaction(async (client) => {
++      const result = await client.query(
++        'SELECT id, email, name FROM users WHERE email = $1',
++        [email.toLowerCase()]
++      );
++      
++      if (result.rows.length > 0) {
++        const user = result.rows[0];
++        
++        // Generate cryptographically secure token
++        const token = generateResetToken();
++        const hashedToken = await hashToken(token);
++        const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 60 minutes
++        
++        // Store hashed token in database
++        await client.query(
++          `INSERT INTO password_reset_tokens (user_id, token_hash, expires_at)
++           VALUES ($1, $2, $3)
++           ON CONFLICT (user_id) DO UPDATE
++           SET token_hash = $2, expires_at = $3, created_at = NOW()`,
++          [user.id, hashedToken, expiresAt]
++        );
++        
++        // Send email with plain token (only in email, never stored)
++        await sendPasswordResetEmail(user.email, user.name, token);
++      }
++    });
++    
++    res.json({ 
++      message: 'If an account exists with that email, a reset link has been sent' 
++    });
++  } catch (error) {
++    next(error);
++  }
++});
++
++/**
++ * Reset password using token
++ * @route POST /auth/reset-password/confirm
++ * @param {string} token - Reset token from email
++ * @param {string} newPassword - New password (min 8 chars, must include number and special char)
++ * @returns {object} Success message
++ */
++router.post('/reset-password/confirm', async (req, res, next) => {
++  try {
++    const { token, newPassword } = req.body;
++    
++    if (!token || !newPassword) {
++      throw new BadRequestError('Token and new password are required');
++    }
++    
++    // Validate password strength
++    if (newPassword.length < 8 || !/\d/.test(newPassword) || !/[!@#$%^&*]/.test(newPassword)) {
++      throw new BadRequestError('Password must be at least 8 characters and include a number and special character');
++    }
++    
++    const hashedToken = await hashToken(token);
++    
++    await transaction(async (client) => {
++      // Find valid token (not expired, not used)
++      const result = await client.query(
++        `SELECT rt.user_id, rt.expires_at
++         FROM password_reset_tokens rt
++         WHERE rt.token_hash = $1 AND rt.expires_at > NOW()`,
++        [hashedToken]
++      );
++      
++      if (result.rows.length === 0) {
++        throw new BadRequestError('Invalid or expired reset token');
++      }
++      
++      const { user_id } = result.rows[0];
++      
++      // Update password
++      const newPasswordHash = await hashPassword(newPassword);
++      await client.query(
++        'UPDATE users SET password_hash = $1, updated_at = NOW() WHERE id = $2',
++        [newPasswordHash, user_id]
++      );
++      
++      // Delete used token (one-time use)
++      await client.query(
++        'DELETE FROM password_reset_tokens WHERE user_id = $1',
++        [user_id]
++      );
++    });
++    
++    res.json({ message: 'Password successfully reset' });
++  } catch (error) {
++    next(error);
++  }
++});
++
+ export default router;
+diff --git a/src/utils/auth.ts b/src/utils/auth.ts
+index 5a6b7c8..9d0e1f2 100644
+--- a/src/utils/auth.ts
++++ b/src/utils/auth.ts
+@@ -1,4 +1,5 @@
+ import bcrypt from 'bcrypt';
++import crypto from 'crypto';
+ 
+ const SALT_ROUNDS = 12;
+ 
+@@ -10,3 +11,23 @@ export async function hashPassword(password: string): Promise<string> {
+ export async function comparePassword(password: string, hash: string): Promise<boolean> {
+   return bcrypt.compare(password, hash);
+ }
++
++/**
++ * Generate a cryptographically secure reset token
++ * @returns {string} 32-byte hex token (64 characters)
++ */
++export function generateResetToken(): string {
++  return crypto.randomBytes(32).toString('hex');
++}
++
++/**
++ * Hash a reset token for secure storage
++ * Uses bcrypt to prevent rainbow table attacks
++ * @param {string} token - Plain text token
++ * @returns {Promise<string>} Hashed token
++ */
++export async function hashToken(token: string): Promise<string> {
++  // Use lower salt rounds for tokens (they're already random)
++  return bcrypt.hash(token, 10);
++}
+diff --git a/src/services/email.ts b/src/services/email.ts
+new file mode 100644
+index 0000000..a1b2c3d
+--- /dev/null
++++ b/src/services/email.ts
+@@ -0,0 +1,45 @@
++import nodemailer from 'nodemailer';
++
++const RESET_URL_BASE = process.env.FRONTEND_URL || 'http://localhost:3000';
++const FROM_EMAIL = process.env.EMAIL_FROM || 'noreply@demo-app.com';
++
++// Create reusable transporter
++const transporter = nodemailer.createTransport({
++  host: process.env.SMTP_HOST,
++  port: Number(process.env.SMTP_PORT) || 587,
++  secure: false,
++  auth: {
++    user: process.env.SMTP_USER,
++    pass: process.env.SMTP_PASS
++  }
++});
++
++/**
++ * Send password reset email with secure token link
++ * @param {string} email - Recipient email address
++ * @param {string} name - Recipient name for personalization
++ * @param {string} token - Reset token (plain text, only sent via email)
++ * @returns {Promise<void>}
++ */
++export async function sendPasswordResetEmail(
++  email: string,
++  name: string,
++  token: string
++): Promise<void> {
++  const resetUrl = `${RESET_URL_BASE}/reset-password?token=${token}`;
++  
++  await transporter.sendMail({
++    from: FROM_EMAIL,
++    to: email,
++    subject: 'Password Reset Request',
++    html: `
++      <h2>Hello ${name},</h2>
++      <p>You requested a password reset for your account.</p>
++      <p>Click the link below to reset your password (valid for 60 minutes):</p>
++      <p><a href="${resetUrl}">Reset Password</a></p>
++      <p>If you didn't request this, please ignore this email.</p>
++      <p>For security, this link will expire in 1 hour.</p>
++    `
++  });
++}
+diff --git a/migrations/003_password_reset_tokens.sql b/migrations/003_password_reset_tokens.sql
+new file mode 100644
+index 0000000..b2c3d4e
+--- /dev/null
++++ b/migrations/003_password_reset_tokens.sql
+@@ -0,0 +1,15 @@
++-- Password reset tokens table
++CREATE TABLE IF NOT EXISTS password_reset_tokens (
++  id SERIAL PRIMARY KEY,
++  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
++  token_hash VARCHAR(255) NOT NULL,
++  expires_at TIMESTAMP NOT NULL,
++  created_at TIMESTAMP DEFAULT NOW(),
++  UNIQUE(user_id)
++);
++
++-- Index for fast token lookup
++CREATE INDEX idx_password_reset_tokens_hash ON password_reset_tokens(token_hash);
++
++-- Index for cleanup of expired tokens
++CREATE INDEX idx_password_reset_tokens_expires ON password_reset_tokens(expires_at);
+diff --git a/tests/auth.test.ts b/tests/auth.test.ts
+index 7a8b9c0..1d2e3f4 100644
+--- a/tests/auth.test.ts
++++ b/tests/auth.test.ts
+@@ -1,5 +1,6 @@
+ import request from 'supertest';
+ import { app } from '../src/app';
++import { generateResetToken, hashToken } from '../src/utils/auth';
+ import * as emailService from '../src/services/email';
+ 
+ jest.mock('../src/services/email');
+@@ -45,4 +46,67 @@ describe('Authentication', () => {
+       .expect(401);
+   });
+ });
++
++describe('Password Reset', () => {
++  beforeEach(() => {
++    jest.clearAllMocks();
++  });
++  
++  describe('POST /auth/reset-password/request', () => {
++    it('should return success for existing user', async () => {
++      const response = await request(app)
++        .post('/auth/reset-password/request')
++        .send({ email: 'test@example.com' })
++        .expect(200);
++      
++      expect(response.body.message).toContain('reset link has been sent');
++      expect(emailService.sendPasswordResetEmail).toHaveBeenCalledTimes(1);
++    });
++    
++    it('should return success for non-existing user (no enumeration)', async () => {
++      const response = await request(app)
++        .post('/auth/reset-password/request')
++        .send({ email: 'nonexistent@example.com' })
++        .expect(200);
++      
++      expect(response.body.message).toContain('reset link has been sent');
++      expect(emailService.sendPasswordResetEmail).not.toHaveBeenCalled();
++    });
++    
++    it('should reject invalid email format', async () => {
++      await request(app)
++        .post('/auth/reset-password/request')
++        .send({ email: 'invalid-email' })
++        .expect(400);
++    });
++  });
++  
++  describe('POST /auth/reset-password/confirm', () => {
++    it('should reset password with valid token', async () => {
++      const token = generateResetToken();
++      // Setup: insert token in test database
++      
++      await request(app)
++        .post('/auth/reset-password/confirm')
++        .send({ 
++          token,
++          newPassword: 'NewSecure123!' 
++        })
++        .expect(200);
++    });
++    
++    it('should reject weak passwords', async () => {
++      const token = generateResetToken();
++      
++      await request(app)
++        .post('/auth/reset-password/confirm')
++        .send({ 
++          token,
++          newPassword: 'weak' 
++        })
++        .expect(400);
++    });
++    
++    // TODO: Add test for token expiration edge case (59min vs 61min)
++  });
++});
+
+# Made with Bob

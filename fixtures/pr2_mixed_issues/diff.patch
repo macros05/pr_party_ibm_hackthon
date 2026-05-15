@@ -1,0 +1,136 @@
+diff --git a/src/api/users.ts b/src/api/users.ts
+index 1a2b3c4..5d6e7f8 100644
+--- a/src/api/users.ts
++++ b/src/api/users.ts
+@@ -1,6 +1,7 @@
+ import { Router } from 'express';
+-import { query } from '../db';
++import { query, queryOne } from '../db';
+ import { User } from '../types';
++import { validateEmail } from '../utils/validation';
+ 
+ const router = Router();
+ 
+@@ -15,4 +16,52 @@ router.get('/users/:id', async (req, res) => {
+   }
+ });
+ 
++// New search endpoint with filters
++router.get('/users/search', async (req, res) => {
++  try {
++    const { email, name, role, page = 1 } = req.query;
++    
++    // Build search query
++    let sql = 'SELECT * FROM users WHERE 1=1';
++    const params: any[] = [];
++    
++    if (email) {
++      params.push(`%${email}%`);
++      sql += ` AND email LIKE $${params.length}`;
++    }
++    
++    if (name) {
++      params.push(`%${name}%`);
++      sql += ` AND name ILIKE $${params.length}`;
++    }
++    
++    if (role) {
++      params.push(role);
++      sql += ` AND role = $${params.length}`;
++    }
++    
++    // Pagination
++    const offset = (Number(page) - 1) * 20;
++    sql += ` LIMIT 20 OFFSET ${offset}`;
++    
++    const users = await query(sql, params);
++    
++    // Fetch profile for each user (N+1 query issue)
++    const usersWithProfiles = [];
++    for (const user of users.rows) {
++      const profile = await queryOne(
++        'SELECT bio, avatar_url FROM user_profiles WHERE user_id = $1',
++        [user.id]
++      );
++      usersWithProfiles.push({ ...user, profile });
++    }
++    
++    res.json({ users: usersWithProfiles, page: Number(page) });
++  } catch (error) {
++    // Inconsistent error handling
++    res.status(500).json({ error: 'Search failed' });
++  }
++});
++
+ export default router;
+diff --git a/src/components/UserSearch.tsx b/src/components/UserSearch.tsx
+new file mode 100644
+index 0000000..9a8b1c2
+--- /dev/null
++++ b/src/components/UserSearch.tsx
+@@ -0,0 +1,45 @@
++import React, { useState } from 'react';
++import { UserProfile } from './UserProfile';
++
++interface SearchFilters {
++  email: string;
++  name: string;
++  role: string;
++}
++
++export const UserSearch: React.FC = () => {
++  const [filters, setFilters] = useState<SearchFilters>({
++    email: '',
++    name: '',
++    role: ''
++  });
++  const [results, setResults] = useState([]);
++  const [loading, set_loading] = useState(false);
++
++  const handleSearch = async () => {
++    set_loading(true);
++    try {
++      const params = new URLSearchParams(filters as any);
++      const response = await fetch(`/api/users/search?${params}`);
++      const data = await response.json();
++      setResults(data.users);
++    } catch (error) {
++      console.error('Search failed:', error);
++    }
++    set_loading(false);
++  };
++
++  return (
++    <div className="user-search">
++      <input
++        type="text"
++        placeholder="Search by email"
++        value={filters.email}
++        onChange={(e) => setFilters({ ...filters, email: e.target.value })}
++      />
++      <button onClick={handleSearch}>Search</button>
++      
++      <div className="results">
++        {results.map((user: any) => <UserProfile key={user.id} user={user} />)}
++      </div>
++    </div>
++  );
++};
+diff --git a/src/db.ts b/src/db.ts
+index 9a8b7c6..1d2e3f4 100644
+--- a/src/db.ts
++++ b/src/db.ts
+@@ -10,3 +10,11 @@ export async function query(sql: string, params: any[] = []) {
+   const client = await pool.connect();
+   return client.query(sql, params);
+ }
++
++export async function queryOne(sql: string, params: any[] = []) {
++  const result = await query(sql, params);
++  if (result.rows.length === 0) {
++    return null;
++  }
++  return result.rows[0];
++}
+
+# Made with Bob

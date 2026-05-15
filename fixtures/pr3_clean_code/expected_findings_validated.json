@@ -1,0 +1,53 @@
+{
+  "findings": [
+    {
+      "id": "raw-001",
+      "category": "security",
+      "severity": "medium",
+      "title": "Missing Rate Limiting on Password Reset Endpoint",
+      "description": "The password reset request endpoint lacks rate limiting, which could allow attackers to enumerate valid email addresses by observing response times or attempting mass password reset requests. While the endpoint returns the same message for existing and non-existing users, rate limiting would add an additional layer of protection against abuse.",
+      "file_path": "src/api/auth.ts",
+      "line_start": 36,
+      "line_end": 36,
+      "code_snippet": "router.post('/reset-password/request', async (req, res, next) => {",
+      "suggestion": "Implement rate limiting using express-rate-limit: `const resetLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 3 });` and apply it to this endpoint. Consider IP-based and email-based rate limiting.",
+      "references": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html#account-lockout",
+        "https://www.npmjs.com/package/express-rate-limit"
+      ],
+      "validation_notes": "Confirmed: No rate limiting middleware visible in the diff. The endpoint properly prevents user enumeration (same response for existing/non-existing users), but rate limiting would add defense-in-depth. Package.json doesn't include express-rate-limit. This is a legitimate security enhancement, though not critical given other protections in place."
+    },
+    {
+      "id": "raw-002",
+      "category": "documentation",
+      "severity": "low",
+      "title": "Email Template Path Not Documented",
+      "description": "The password reset email template is sent via the sendPasswordResetEmail function, but the README or API documentation doesn't mention where email templates are stored or how to customize them. This could confuse developers trying to modify the email content.",
+      "file_path": "src/services/email.ts",
+      "line_start": 23,
+      "line_end": 44,
+      "code_snippet": "export async function sendPasswordResetEmail(\n  email: string,\n  name: string,\n  token: string\n): Promise<void> {\n  const resetUrl = `${RESET_URL_BASE}/reset-password?token=${token}`;\n  \n  await transporter.sendMail({\n    from: FROM_EMAIL,\n    to: email,\n    subject: 'Password Reset Request',\n    html: `\n      <h2>Hello ${name},</h2>\n      <p>You requested a password reset for your account.</p>\n      <p>Click the link below to reset your password (valid for 60 minutes):</p>\n      <p><a href=\"${resetUrl}\">Reset Password</a></p>\n      <p>If you didn't request this, please ignore this email.</p>\n      <p>For security, this link will expire in 1 hour.</p>\n    `\n  });",
+      "suggestion": "Add a section to README.md documenting: 1) Email template location (inline HTML in this case), 2) Required environment variables (SMTP_HOST, SMTP_USER, etc.), 3) How to customize email templates. Consider moving HTML to a separate template file.",
+      "references": [
+        "https://nodemailer.com/message/"
+      ],
+      "validation_notes": "Confirmed: Email template is inline HTML in src/services/email.ts (lines 34-42 of diff). The function has good JSDoc comments, but no README update visible in diff. Environment variables (SMTP_HOST, SMTP_USER, etc.) are used but not documented. Minor documentation gap that won't block approval."
+    },
+    {
+      "id": "raw-003",
+      "category": "testing",
+      "severity": "low",
+      "title": "Missing Edge Case Test for Token Expiration Boundary",
+      "description": "The test suite includes good coverage for password reset functionality, but there's a TODO comment indicating a missing test for the token expiration edge case (59 minutes vs 61 minutes). This edge case is important to verify that tokens expire exactly at 60 minutes, not before or after.",
+      "file_path": "tests/auth.test.ts",
+      "line_start": 110,
+      "line_end": 110,
+      "code_snippet": "    // TODO: Add test for token expiration edge case (59min vs 61min)",
+      "suggestion": "Implement the edge case test: 1) Create a token with 59-minute expiration (should work), 2) Create a token with 61-minute expiration (should fail), 3) Use jest.useFakeTimers() to control time. This ensures the 60-minute expiration is enforced correctly.",
+      "references": [
+        "https://jestjs.io/docs/timer-mocks"
+      ],
+      "validation_notes": "Confirmed: TODO comment visible at line 110 of tests/auth.test.ts in diff. The test suite has good coverage overall (tests for valid token, weak password, etc.), but this specific edge case is acknowledged as missing by the developer. The 60-minute expiration is implemented correctly in the code (line 57: `new Date(Date.now() + 60 * 60 * 1000)`), so this is a minor test gap rather than a code issue."
+    }
+  ]
+}

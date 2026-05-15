@@ -1,0 +1,71 @@
+diff --git a/src/routes/upload.ts b/src/routes/upload.ts
+new file mode 100644
+index 0000000..a1b2c3d
+--- /dev/null
++++ b/src/routes/upload.ts
+@@ -0,0 +1,45 @@
++import express from 'express';
++import multer from 'multer';
++import path from 'path';
++import { db } from '../db';
++
++const router = express.Router();
++
++// Configure multer for file uploads
++const storage = multer.diskStorage({
++  destination: 'public/uploads',
++  filename: (req, file, cb) => {
++    cb(null, file.originalname);
++  }
++});
++
++const upload = multer({ storage });
++
++// Upload avatar endpoint
++router.post('/avatar', upload.single('avatar'), async (req, res) => {
++  const file = req.file;
++  
++  if (!file) {
++    return res.status(400).json({ error: 'No file uploaded' });
++  }
++
++  const userId = req.body.userId;
++  const avatarUrl = `/uploads/${file.filename}`;
++
++  // Save to database
++  await db.query(
++    'UPDATE users SET avatar_url = $1 WHERE id = $2',
++    [avatarUrl, userId]
++  );
++
++  // Log the upload
++  await db.query(
++    'INSERT INTO upload_logs (user_id, filename, uploaded_at) VALUES ($1, $2, NOW())',
++    [userId, file.filename]
++  );
++
++  res.json({
++    success: true,
++    url: avatarUrl
++  });
++});
++
++export default router;
+diff --git a/src/app.ts b/src/app.ts
+index e1f2g3h..i4j5k6l
+--- a/src/app.ts
++++ b/src/app.ts
+@@ -5,6 +5,7 @@ import authRoutes from './routes/auth';
+ import userRoutes from './routes/user';
++import uploadRoutes from './routes/upload';
+ 
+ const app = express();
+ 
+@@ -15,6 +16,7 @@ app.use(express.json());
+ app.use('/api/auth', authRoutes);
+ app.use('/api/users', userRoutes);
++app.use('/api/upload', uploadRoutes);
+ 
+ export default app;
+
+# Made with Bob

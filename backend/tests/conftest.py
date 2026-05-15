@@ -78,61 +78,86 @@ export async function query(sql: string, params: any[]) {
 
 @pytest.fixture
 def sample_finding_raw():
-    """Sample raw finding from Bob searcher."""
+    """Sample raw finding from Bob searcher (matches FindingRaw model)."""
     return {
-        "id": "f1",
-        "type": "security",
-        "severity": "critical",
+        "id": "F001",
         "title": "SQL Injection vulnerability",
-        "description": "User input is directly interpolated into SQL query",
+        "description": "User input is directly interpolated into SQL query without parameterization",
+        "severity": "critical",
+        "damage": 85,
+        "damage_type": "crit_hit",
         "file_path": "src/auth.ts",
         "line_start": 13,
         "line_end": 13,
-        "code_snippet": "const query = `SELECT * FROM users WHERE username = '${username}'`;",
-        "suggestion": "Use parameterized queries with placeholders"
+        "code_snippet": "const query = `SELECT * FROM users WHERE username = '${username}'`;"
     }
 
 
 @pytest.fixture
 def sample_finding_validated():
-    """Sample validated finding from Bob validator."""
+    """Sample validated finding from Bob validator (matches FindingValidated model)."""
     return {
-        "id": "f1",
-        "type": "security",
-        "severity": "critical",
+        "id": "F001",
         "title": "SQL Injection vulnerability",
-        "description": "User input is directly interpolated into SQL query",
+        "description": "User input is directly interpolated into SQL query without parameterization",
+        "severity": "critical",
+        "damage": 85,
+        "damage_type": "crit_hit",
         "file_path": "src/auth.ts",
         "line_start": 13,
         "line_end": 13,
         "code_snippet": "const query = `SELECT * FROM users WHERE username = '${username}'`;",
-        "suggestion": "Use parameterized queries with placeholders",
-        "noise_filtered": False,
-        "validator_reasoning": "This is a legitimate SQL injection vulnerability. User input should never be directly interpolated into SQL queries."
+        "validation_notes": "Confirmed SQL injection - user input directly interpolated into query string"
     }
 
 
 @pytest.fixture
 def sample_finding_complete():
-    """Sample complete finding with character assignment and voice."""
+    """Sample complete finding with character assignment and voice (matches Finding model)."""
     return {
-        "id": "f1",
-        "type": "security",
-        "severity": "critical",
+        "id": "F001",
         "title": "SQL Injection vulnerability",
-        "description": "User input is directly interpolated into SQL query",
+        "description": "User input is directly interpolated into SQL query without parameterization",
+        "severity": "critical",
+        "damage": 85,
+        "damage_type": "crit_hit",
         "file_path": "src/auth.ts",
         "line_start": 13,
         "line_end": 13,
         "code_snippet": "const query = `SELECT * FROM users WHERE username = '${username}'`;",
-        "suggestion": "Use parameterized queries with placeholders",
-        "noise_filtered": False,
-        "validator_reasoning": "This is a legitimate SQL injection vulnerability.",
         "character_id": "aegis",
-        "character_name": "Aegis",
-        "damage": 85,
-        "damage_type": "crit_hit",
-        "voiced_message": "⚔️ CRITICAL BREACH DETECTED! This SQL injection is a gateway for attackers to steal your entire database. Use parameterized queries immediately!"
+        "character_dialogue": "⚔️ CRITICAL BREACH! This SQL injection is a gateway for attackers to steal your entire database. Use parameterized queries immediately!"
+    }
+
+
+@pytest.fixture
+def sample_encounter_result():
+    """Sample complete encounter result (matches EncounterResult model)."""
+    return {
+        "pr_number": 123,
+        "pr_title": "Add user authentication",
+        "pr_author": "testuser",
+        "verdict": "blocked",
+        "total_damage": 85,
+        "remaining_hp": 15,
+        "findings": [
+            {
+                "id": "F001",
+                "title": "SQL Injection vulnerability",
+                "description": "User input is directly interpolated into SQL query",
+                "severity": "critical",
+                "damage": 85,
+                "damage_type": "crit_hit",
+                "file_path": "src/auth.ts",
+                "line_start": 13,
+                "line_end": 13,
+                "code_snippet": "const query = `SELECT * FROM users WHERE username = '${username}'`;",
+                "character_id": "aegis",
+                "character_dialogue": "⚔️ CRITICAL BREACH! Use parameterized queries!"
+            }
+        ],
+        "dialogues": [],
+        "analysis_timestamp": "2026-05-15T23:00:00Z"
     }
 
 

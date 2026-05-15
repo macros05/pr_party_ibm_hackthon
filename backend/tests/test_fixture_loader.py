@@ -58,7 +58,7 @@ def test_load_pr3_fixture(loader):
 
 def test_load_nonexistent_fixture(loader):
     """Test loading non-existent fixture raises error."""
-    with pytest.raises(ValueError, match="Fixture 'nonexistent' not found"):
+    with pytest.raises(ValueError, match="Unknown fixture: nonexistent"):
         loader.load_fixture("nonexistent")
 
 

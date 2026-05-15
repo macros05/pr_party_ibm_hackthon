@@ -16,7 +16,14 @@ class FixtureLoader:
     
     def __init__(self, fixtures_dir: str = "fixtures"):
         self.fixtures_dir = Path(fixtures_dir)
-        logger.info("fixture_loader_initialized", fixtures_dir=str(self.fixtures_dir))
+        
+        # If fixtures_dir doesn't exist, try parent directory (for tests run from backend/)
+        if not self.fixtures_dir.exists():
+            parent_fixtures = Path("..") / fixtures_dir
+            if parent_fixtures.exists():
+                self.fixtures_dir = parent_fixtures
+        
+        logger.info("fixture_loader_initialized", fixtures_dir=str(self.fixtures_dir.resolve()))
     
     def load_fixture(self, fixture_name: str) -> dict[str, Any]:
         """

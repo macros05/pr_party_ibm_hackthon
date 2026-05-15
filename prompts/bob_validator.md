@@ -98,10 +98,22 @@ If the finding is valid but the suggested fix is incomplete or wrong, provide a 
 - Verify the code snippet matches what's at those lines
 - If line numbers are off by more than 2 lines, mark as false positive
 
+**Note**: Line numbers should reference the NEW file (after `+++` in diff).
+If the Searcher used old file line numbers or diff hunk numbers, this is an error.
+Cross-reference the code_snippet against the actual diff to verify.
+
 ### 2. Context Analysis
 - Look at surrounding code (10 lines before/after)
 - Check if the issue is handled elsewhere (parent function, middleware)
 - Review imported files to see if there's a wrapper or utility that addresses the issue
+
+**Limited Context**: You only have access to the diff and 1-level imports.
+If you need to see other files to validate a finding, and they're not provided:
+- Set confidence < 0.7
+- Mark as false positive (err on side of caution)
+- Note the missing context in validation_notes
+
+Example: "Cannot confirm if global auth middleware exists (not in provided context). Marking as false positive with low confidence."
 
 ### 3. Pattern Recognition
 - Is this pattern used consistently elsewhere in the repo?

@@ -21,6 +21,11 @@ Analyze the diff and produce a structured JSON list of findings. Each finding mu
 ## Output Format
 Return ONLY valid JSON in this exact structure:
 
+**Line Numbers**: Use the line numbers from the NEW file (after the `+++` marker in the diff).
+For new files, these start at 1. For modified files, use the line numbers shown in the diff hunks.
+
+Example: If the diff shows `@@ -0,0 +1,45 @@`, line numbers are 1-45.
+
 ```json
 {
   "findings": [
@@ -135,6 +140,66 @@ Return ONLY valid JSON in this exact structure:
 4. **Architecture Fourth**: Assess patterns, coupling, consistency
 5. **Tests Fifth**: Verify test coverage and quality
 6. **Docs Last**: Check if documentation matches code changes
+
+### Security Checklist
+When analyzing security, explicitly check for:
+- [ ] **File uploads**: Extension validation, size limits, path sanitization
+- [ ] **Authentication**: Auth middleware exists on protected routes (e.g., `authenticate()`, `requireAuth()`)
+- [ ] **Authorization**: User permissions are validated before operations
+- [ ] **Input validation**: User inputs are sanitized before use
+- [ ] **SQL queries**: Parameterized queries used (not string concatenation)
+- [ ] **Secrets**: No hardcoded API keys, passwords, or tokens
+- [ ] **HTTPS**: Sensitive operations require secure connections
+- [ ] **CSRF**: State-changing operations have CSRF protection
+
+## Detecting Missing Elements
+
+Some issues are about what's NOT in the code. These are just as important as what IS there:
+
+### Missing Authentication
+**What to look for**: No middleware like `authenticate()`, `requireAuth()`, or `isAuthenticated()` on route definitions.
+
+Example:
+```typescript
+// ISSUE: No auth middleware
+router.post('/admin/delete-user', async (req, res) => { ... });
+
+// CORRECT: Has auth middleware
+router.post('/admin/delete-user', authenticate, requireAdmin, async (req, res) => { ... });
+```
+
+**How to report**: "No authentication middleware present on line X (route definition). Endpoint is publicly accessible."
+
+### Missing Tests
+**What to look for**: New files added (e.g., `src/routes/upload.ts`) but no corresponding test file (e.g., `src/routes/upload.test.ts` or `tests/routes/upload.spec.ts`).
+
+**How to report**: "No test file found for new module. Expected `src/routes/upload.test.ts` or similar."
+
+### Missing Documentation
+**What to look for**:
+- New public API endpoints without JSDoc comments
+- New functions without docstrings
+- No README update when adding new features
+- No CHANGELOG entry for user-facing changes
+
+**How to report**: "New public API endpoint added (line X) with no JSDoc comments. No README update visible in diff."
+
+### Missing Error Handling
+**What to look for**:
+- Async operations without try-catch
+- No error middleware in Express apps
+- Database operations without error callbacks
+- Promise chains without `.catch()`
+
+**How to report**: "No try-catch around async operations (lines X-Y). If db.query() throws, unhandled promise rejection occurs."
+
+### Missing Validation
+**What to look for**:
+- User inputs used directly without validation
+- No schema validation (e.g., Joi, Zod, class-validator)
+- No type checking on request bodies
+
+**How to report**: "No input validation on req.body.userId (line X). Should validate type and format before use."
 
 ## Important Rules
 

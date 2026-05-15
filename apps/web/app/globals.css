@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+/* ---------- base palette (dark, OKLCH) ---------- */
+:root {
+  --bg: oklch(14% 0.006 250);
+  --surface: oklch(17% 0.006 250);
+  --surface-elev: oklch(20% 0.007 250);
+  --border: oklch(28% 0.005 250);
+  --border-strong: oklch(38% 0.005 250);
+  --fg: oklch(96% 0.002 250);
+  --fg-muted: oklch(68% 0.005 250);
+  --fg-soft: oklch(48% 0.005 250);
+}
+
+/* Per-character accents exposed to Tailwind utilities (bg-aegis, text-schema, ...) */
+@theme inline {
+  --color-aegis: oklch(64% 0.21 25);
+  --color-aegis-glow: oklch(78% 0.16 80);
+  --color-schema: oklch(64% 0.18 240);
+  --color-pixel: oklch(66% 0.25 330);
+  --color-atlas: oklch(70% 0.18 150);
+  --color-echo: oklch(64% 0.22 290);
+  --color-codex: oklch(74% 0.18 70);
+
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-jetbrains-mono);
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--fg);
+}
+
+body {
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  font-feature-settings: "ss01", "cv11", "calt";
+  -webkit-font-smoothing: antialiased;
+  background-image:
+    radial-gradient(900px 480px at 18% -8%, oklch(22% 0.02 250 / 0.6), transparent 60%),
+    radial-gradient(720px 360px at 92% 108%, oklch(20% 0.03 290 / 0.45), transparent 60%);
+  background-attachment: fixed;
+}
+
+/* faint grain overlay — sits above content but is non-interactive and 3.5% opacity */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='160' height='160' filter='url(%23n)' opacity='0.8'/></svg>");
+}
+
+/* selection */
+::selection {
+  background: oklch(64% 0.18 240 / 0.35);
+  color: var(--fg);
+}

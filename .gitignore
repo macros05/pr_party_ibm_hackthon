@@ -1,0 +1,14 @@
+# macOS
+.DS_Store
+
+# editor
+.vscode/
+.idea/
+
+# env (per SPEC §10: never commit secrets)
+.env
+.env.local
+.env.*.local
+
+# logs
+*.log

@@ -1,128 +1,132 @@
-import { Character } from "@/components/Character";
-import type {
-  Character as CharacterType,
-  CharacterId,
-  CharacterStatus,
-  Finding,
-} from "@/types/encounter";
+"use client";
 
-const CHARACTER_BASE: Record<
-  CharacterId,
-  Omit<CharacterType, "status" | "findings">
-> = {
-  aegis: { id: "aegis", name: "Aegis", class: "Security Paladin", level: 8 },
-  schema: { id: "schema", name: "Schema", class: "Database Mage", level: 7 },
-  pixel: { id: "pixel", name: "Pixel", class: "UX Bard", level: 6 },
-  atlas: { id: "atlas", name: "Atlas", class: "Architecture Ranger", level: 9 },
-  echo: { id: "echo", name: "Echo", class: "Test Cleric", level: 7 },
-  codex: { id: "codex", name: "Codex", class: "Documentation Scribe", level: 5 },
-};
+import * as React from "react";
+import { AegisIsland } from "@/components/islands/AegisIsland";
+import { CHARACTERS } from "@/tokens/characters";
+import { visualsFor } from "@/tokens/level_visuals";
 
-const CHARACTER_ORDER = [
-  "aegis",
-  "schema",
-  "pixel",
-  "atlas",
-  "echo",
-  "codex",
-] as const satisfies readonly CharacterId[];
+const STATUSES = ["idle", "thinking", "active", "done"] as const;
+type Status = (typeof STATUSES)[number];
 
-const STATUSES = [
-  "idle",
-  "thinking",
-  "active",
-  "done",
-] as const satisfies readonly CharacterStatus[];
+export default function AegisShowcase() {
+  const [pulseKey, setPulseKey] = React.useState<number | undefined>(undefined);
 
-const STUB_FINDING: Finding = {
-  id: "stub",
-  severity: "medium",
-  action: "graze",
-  damage: 25,
-  file: "src/example.ts",
-  line_start: 10,
-  line_end: 12,
-  category: "patterns",
-  title: "stub finding",
-  explanation_raw: "",
-  explanation_voiced: "",
-  references: [],
-};
+  function triggerPulse() {
+    setPulseKey((k) => (k ?? 0) + 1);
+  }
 
-const DONE_FINDINGS_COUNT: Record<CharacterId, number> = {
-  aegis: 3,
-  schema: 1,
-  pixel: 2,
-  atlas: 0,
-  echo: 4,
-  codex: 1,
-};
-
-function buildCharacter(
-  id: CharacterId,
-  status: CharacterStatus,
-): CharacterType {
-  const base = CHARACTER_BASE[id];
-  const findings: Finding[] =
-    status === "done"
-      ? Array.from({ length: DONE_FINDINGS_COUNT[id] }, (_, i) => ({
-          ...STUB_FINDING,
-          id: `${id}-stub-${i}`,
-        }))
-      : [];
-  return { ...base, status, findings };
-}
-
-export default function CharacterPreviewPage() {
   return (
-    <main className="flex-1 px-6 py-16">
-      <div className="mx-auto max-w-6xl">
-        <header className="mb-14">
-          <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--fg-soft)]">
-            preview · component
+    <main className="flex-1 px-6 py-20">
+      <div className="relative mx-auto max-w-7xl">
+        <header className="mb-16">
+          <p className="font-mono text-[10px] uppercase tracking-[0.24em] text-[var(--fg-soft)]">
+            preview · island · 01 of 06
           </p>
-          <h1 className="mt-2 text-3xl font-medium tracking-tight text-[var(--fg)]">
-            Character
+          <h1 className="mt-3 font-display text-6xl leading-[1.02] tracking-tight text-[var(--fg)]">
+            Aegis &mdash; Fortaleza de Brasa
           </h1>
-          <p className="mt-3 max-w-xl text-sm text-[var(--fg-muted)]">
-            Six characters across four lifecycle states. The accent color, icon,
-            and HP rail shift per character; the status dot animates per state.
+          <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-[var(--fg-muted)]">
+            A floating stepped keep with crenellations, ember veins glowing
+            through the stone, torches whose flames flicker out of sync, and a
+            vigilant paladin silhouette. The number of torches scales with the
+            character&rsquo;s level.
           </p>
         </header>
 
-        <section className="mb-16">
-          <SectionLabel>All six · active</SectionLabel>
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-            {CHARACTER_ORDER.map((id) => (
-              <Character key={id} character={buildCharacter(id, "active")} />
+        {/* level progression — three keep variants side by side */}
+        <Section label="Level progression · L2 → L5 → L8">
+          <div className="flex flex-wrap items-end justify-center gap-x-8 gap-y-12">
+            {[2, 5, 8].map((lvl) => (
+              <LevelCard key={lvl} level={lvl} />
             ))}
           </div>
-        </section>
+        </Section>
 
-        {STATUSES.map((status) => (
-          <section key={status} className="mb-16">
-            <SectionLabel>State · {status}</SectionLabel>
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-              {CHARACTER_ORDER.map((id) => (
-                <Character
-                  key={`${id}-${status}`}
-                  character={buildCharacter(id, status)}
-                />
-              ))}
-            </div>
-          </section>
-        ))}
+        {/* status × bob */}
+        <Section label="Status lifecycle · idle / thinking / active / done">
+          <div className="flex flex-wrap items-end justify-center gap-x-8 gap-y-12">
+            {STATUSES.map((status) => (
+              <StatusCard key={status} status={status} />
+            ))}
+          </div>
+        </Section>
+
+        {/* interaction */}
+        <Section label="Interaction · found-something pulse">
+          <div className="flex flex-col items-center gap-6">
+            <AegisIsland
+              level={8}
+              status="active"
+              pulseKey={pulseKey}
+              width={340}
+            />
+            <button
+              type="button"
+              onClick={triggerPulse}
+              className="rounded-full border border-[var(--border-strong)] bg-white/70 px-5 py-2 font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--fg)] shadow-[var(--shadow-panel)] backdrop-blur-sm transition hover:-translate-y-0.5 hover:border-[var(--color-aegis)] hover:text-[var(--color-aegis)]"
+            >
+              Trigger finding pulse
+            </button>
+          </div>
+        </Section>
       </div>
     </main>
   );
 }
 
-function SectionLabel({ children }: { children: React.ReactNode }) {
+function Section({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
-    <h2 className="mb-4 flex items-center gap-3 font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--fg-soft)]">
-      <span className="h-px flex-1 bg-[var(--border)]" />
-      <span>{children}</span>
-      <span className="h-px flex-1 bg-[var(--border)]" />
-    </h2>
+    <section className="mb-24">
+      <h2 className="mb-10 flex items-center gap-4 font-mono text-[10px] uppercase tracking-[0.24em] text-[var(--fg-soft)]">
+        <span className="h-px flex-1 bg-[var(--border)]" />
+        <span>{label}</span>
+        <span className="h-px flex-1 bg-[var(--border)]" />
+      </h2>
+      {children}
+    </section>
+  );
+}
+
+function LevelCard({ level }: { level: number }) {
+  const v = visualsFor("aegis", level);
+  return (
+    <figure className="flex flex-col items-center">
+      <AegisIsland level={level} status="active" width={300} />
+      <figcaption className="mt-6 text-center">
+        <p className="font-display text-xl tracking-tight text-[var(--fg)]">
+          Level {String(level).padStart(2, "0")}
+        </p>
+        <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.18em] text-[var(--fg-soft)]">
+          {v.torches} torches &middot; ember {(v.emberIntensity * 100).toFixed(0)}%
+        </p>
+      </figcaption>
+    </figure>
+  );
+}
+
+function StatusCard({ status }: { status: Status }) {
+  return (
+    <figure className="flex flex-col items-center">
+      <AegisIsland level={6} status={status} width={260} />
+      <figcaption className="mt-6 text-center">
+        <p
+          className="font-mono text-[10px] uppercase tracking-[0.22em]"
+          style={{
+            color:
+              status === "idle"
+                ? "var(--fg-soft)"
+                : CHARACTERS.aegis.accent,
+          }}
+        >
+          {status}
+        </p>
+      </figcaption>
+    </figure>
   );
 }

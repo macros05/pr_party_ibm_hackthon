@@ -114,3 +114,39 @@ export interface EncounterPayload {
   characters: Character[];
   dialogues: Dialogue[];
 }
+
+/**
+ * Stream SSE durante el encuentro. El snapshot final (`EncounterPayload`)
+ * se reconstruye a partir de estos eventos, o llega de golpe si el backend
+ * prefiere resolver el encuentro como una sola respuesta.
+ */
+export type EncounterEvent =
+  | {
+      type: "encounter_start";
+      encounter_id: string;
+      pr_meta: PrMeta;
+      pr_hp_start: number;
+    }
+  | {
+      type: "character_status";
+      character_id: CharacterId;
+      status: CharacterStatus;
+    }
+  | {
+      type: "finding";
+      character_id: CharacterId;
+      finding: Finding;
+    }
+  | {
+      type: "dialogue";
+      dialogue: Dialogue;
+    }
+  | {
+      type: "pr_hp";
+      hp: number;
+      delta: number;
+    }
+  | {
+      type: "encounter_end";
+      encounter: EncounterMeta;
+    };

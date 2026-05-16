@@ -1,9 +1,12 @@
-import { redirect } from "next/navigation";
+import { FixtureSelector } from "@/components/FixtureSelector";
 
 /**
- * The root route is just the entrance to Aegis' island. The old
- * "council map" view has been retired (see `_deprecated/`).
+ * Home page with fixture selector.
+ * Users choose which PR fixture to analyze (pr1, pr2, or pr3).
+ * The selection is passed via URL query parameter to island pages.
  */
 export default function Home() {
-  redirect("/island/aegis");
+  return <FixtureSelector />;
 }
+
+// Made with Bob

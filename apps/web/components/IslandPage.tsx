@@ -3,7 +3,7 @@
 import * as React from "react";
 import type { CharacterId } from "@/types/encounter";
 import { CHARACTER_ORDER } from "@/tokens/characters";
-import { useIslandAnalysis } from "@/lib/demo/character-analysis";
+import { useIslandAnalysisWithFallback } from "@/lib/api/use-island-analysis-remote";
 import { FloatingIsland } from "@/components/world/FloatingIsland";
 import { IslandNavigator } from "@/components/world/IslandNavigator";
 import type {
@@ -22,6 +22,7 @@ import { useWindRoll } from "@/lib/motion/wind";
 
 interface Props {
   id: CharacterId;
+  fixture: string;
 }
 
 /**
@@ -39,8 +40,8 @@ interface Props {
  * rotateX/rotateY (±2deg max) to FloatingIsland for 3D depth. Wind
  * gusts also tilt the island via `useWindRoll`.
  */
-export function IslandPage({ id }: Props) {
-  const { phase, findings, prMeta } = useIslandAnalysis(id);
+export function IslandPage({ id, fixture }: Props) {
+  const { phase, findings, prMeta } = useIslandAnalysisWithFallback(id, fixture);
   const reduced = usePrefersReducedMotion();
   const windRoll = useWindRoll();
 

@@ -85,9 +85,10 @@ class SSEEvent(BaseModel):
 
 class AnalyzeRequest(BaseModel):
     """Request to analyze a PR."""
-    pr_number: int = Field(..., description="GitHub PR number")
-    repo_owner: str = Field(..., description="Repository owner")
-    repo_name: str = Field(..., description="Repository name")
+    pr_number: Optional[int] = Field(None, description="GitHub PR number")
+    repo_owner: Optional[str] = Field(None, description="Repository owner")
+    repo_name: Optional[str] = Field(None, description="Repository name")
+    github_url: Optional[str] = Field(None, description="Full GitHub PR URL (e.g., https://github.com/owner/repo/pull/123)")
     use_fixture: Optional[str] = Field(None, description="Fixture name for offline testing (pr1, pr2, pr3)")
 
 # Made with Bob

@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import type { CharacterId } from "@/types/encounter";
 import { CHARACTERS, CHARACTER_ORDER } from "@/tokens/characters";
 
@@ -19,9 +19,18 @@ interface Props {
  */
 export function IslandNavigator({ current }: Props) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const githubUrl = searchParams.get("github_url");
+  const fixture = searchParams.get("fixture") || "pr1";
+
   const idx = CHARACTER_ORDER.indexOf(current);
   const prev = CHARACTER_ORDER[(idx - 1 + CHARACTER_ORDER.length) % CHARACTER_ORDER.length];
   const next = CHARACTER_ORDER[(idx + 1) % CHARACTER_ORDER.length];
+
+  const buildUrl = (characterId: CharacterId) =>
+    githubUrl
+      ? `/island/${characterId}?github_url=${encodeURIComponent(githubUrl)}`
+      : `/island/${characterId}?fixture=${fixture}`;
 
   React.useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -29,15 +38,15 @@ export function IslandNavigator({ current }: Props) {
       if (t && isEditable(t)) return;
       if (e.key === "ArrowLeft") {
         e.preventDefault();
-        router.push(`/island/${prev}`);
+        router.push(buildUrl(prev));
       } else if (e.key === "ArrowRight") {
         e.preventDefault();
-        router.push(`/island/${next}`);
+        router.push(buildUrl(next));
       }
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [prev, next, router]);
+  }, [prev, next, router, fixture]);
 
   return (
     <>
@@ -45,13 +54,13 @@ export function IslandNavigator({ current }: Props) {
         side="left"
         target={prev}
         label={`Previous · ${CHARACTERS[prev].name}`}
-        onClick={() => router.push(`/island/${prev}`)}
+        onClick={() => router.push(buildUrl(prev))}
       />
       <NavArrow
         side="right"
         target={next}
         label={`Next · ${CHARACTERS[next].name}`}
-        onClick={() => router.push(`/island/${next}`)}
+        onClick={() => router.push(buildUrl(next))}
       />
     </>
   );

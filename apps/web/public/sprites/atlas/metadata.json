@@ -1,0 +1,107 @@
+{
+  "group_id": null,
+  "states": [
+    {
+      "character": {
+        "id": "6d3d792f-e8cd-4d88-9751-fffcd752fa8a",
+        "name": "Chibi pixel art robot explorer cartographer. Bipedal athletic proportions, rounded helmet head with horizontal visor slit emitting two glowing green eye lights. Bone-white armored plating with green accent details on chest, knees and shoulders. Brown leather satchel bag worn cross-body. Holds a rolled parchment scroll in one hand. Small antenna sticking up from back of head. Color palette: bone white, cream, green accents, brown leather. Soft cel-shading, crisp dark outline.",
+        "prompt": "Chibi pixel art robot explorer cartographer. Bipedal athletic proportions, rounded helmet head with horizontal visor slit emitting two glowing green eye lights. Bone-white armored plating with green accent details on chest, knees and shoulders. Brown leather satchel bag worn cross-body. Holds a rolled parchment scroll in one hand. Small antenna sticking up from back of head. Color palette: bone white, cream, green accents, brown leather. Soft cel-shading, crisp dark outline.",
+        "size": {
+          "width": 92,
+          "height": 92
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "low top-down",
+        "created_at": "2026-05-16T13:03:28.539808+00:00"
+      },
+      "folder": "states/Chibi_pixel_art_robot_explorer_cartographer._Biped",
+      "frames": {
+        "rotations": {
+          "south": "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/rotations/south.png",
+          "south-east": "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/rotations/south-east.png",
+          "east": "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/rotations/east.png",
+          "north-east": "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/rotations/north-east.png",
+          "north": "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/rotations/north.png",
+          "north-west": "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/rotations/north-west.png",
+          "west": "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/rotations/west.png",
+          "south-west": "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/rotations/south-west.png"
+        },
+        "animations": {
+          "looking_around_and_scanning-cf678634": {
+            "south": [
+              "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/animations/looking_around_and_scanning-cf678634/south/frame_000.png",
+              "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/animations/looking_around_and_scanning-cf678634/south/frame_001.png",
+              "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/animations/looking_around_and_scanning-cf678634/south/frame_002.png",
+              "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/animations/looking_around_and_scanning-cf678634/south/frame_003.png",
+              "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/animations/looking_around_and_scanning-cf678634/south/frame_004.png",
+              "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/animations/looking_around_and_scanning-cf678634/south/frame_005.png",
+              "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/animations/looking_around_and_scanning-cf678634/south/frame_006.png",
+              "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/animations/looking_around_and_scanning-cf678634/south/frame_007.png",
+              "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/animations/looking_around_and_scanning-cf678634/south/frame_008.png"
+            ]
+          },
+          "animating-5b79e52f": {
+            "south": [
+              "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/animations/animating-5b79e52f/south/frame_000.png",
+              "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/animations/animating-5b79e52f/south/frame_001.png",
+              "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/animations/animating-5b79e52f/south/frame_002.png",
+              "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/animations/animating-5b79e52f/south/frame_003.png"
+            ]
+          },
+          "walking-0a1dc064": {
+            "south": [
+              "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/animations/walking-0a1dc064/south/frame_000.png",
+              "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/animations/walking-0a1dc064/south/frame_001.png",
+              "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/animations/walking-0a1dc064/south/frame_002.png",
+              "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/animations/walking-0a1dc064/south/frame_003.png",
+              "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/animations/walking-0a1dc064/south/frame_004.png",
+              "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/animations/walking-0a1dc064/south/frame_005.png"
+            ]
+          },
+          "looking_around_and_scanning-f6c7ddc8": {
+            "south": [
+              "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/animations/looking_around_and_scanning-f6c7ddc8/south/frame_000.png",
+              "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/animations/looking_around_and_scanning-f6c7ddc8/south/frame_001.png",
+              "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/animations/looking_around_and_scanning-f6c7ddc8/south/frame_002.png",
+              "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/animations/looking_around_and_scanning-f6c7ddc8/south/frame_003.png",
+              "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/animations/looking_around_and_scanning-f6c7ddc8/south/frame_004.png",
+              "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/animations/looking_around_and_scanning-f6c7ddc8/south/frame_005.png",
+              "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/animations/looking_around_and_scanning-f6c7ddc8/south/frame_006.png",
+              "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/animations/looking_around_and_scanning-f6c7ddc8/south/frame_007.png",
+              "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/animations/looking_around_and_scanning-f6c7ddc8/south/frame_008.png"
+            ]
+          },
+          "cheering_victory_pose-c0bb3e15": {
+            "south": [
+              "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/animations/cheering_victory_pose-c0bb3e15/south/frame_000.png",
+              "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/animations/cheering_victory_pose-c0bb3e15/south/frame_001.png",
+              "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/animations/cheering_victory_pose-c0bb3e15/south/frame_002.png",
+              "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/animations/cheering_victory_pose-c0bb3e15/south/frame_003.png",
+              "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/animations/cheering_victory_pose-c0bb3e15/south/frame_004.png",
+              "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/animations/cheering_victory_pose-c0bb3e15/south/frame_005.png",
+              "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/animations/cheering_victory_pose-c0bb3e15/south/frame_006.png",
+              "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/animations/cheering_victory_pose-c0bb3e15/south/frame_007.png",
+              "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/animations/cheering_victory_pose-c0bb3e15/south/frame_008.png"
+            ]
+          },
+          "getting_hit_and_staggering-9335a074": {
+            "south": [
+              "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/animations/getting_hit_and_staggering-9335a074/south/frame_000.png",
+              "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/animations/getting_hit_and_staggering-9335a074/south/frame_001.png",
+              "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/animations/getting_hit_and_staggering-9335a074/south/frame_002.png",
+              "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/animations/getting_hit_and_staggering-9335a074/south/frame_003.png",
+              "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/animations/getting_hit_and_staggering-9335a074/south/frame_004.png",
+              "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/animations/getting_hit_and_staggering-9335a074/south/frame_005.png",
+              "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/animations/getting_hit_and_staggering-9335a074/south/frame_006.png",
+              "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/animations/getting_hit_and_staggering-9335a074/south/frame_007.png",
+              "states/Chibi_pixel_art_robot_explorer_cartographer._Biped/animations/getting_hit_and_staggering-9335a074/south/frame_008.png"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "export_version": "3.0",
+  "export_date": "2026-05-16T13:15:26.235116"
+}

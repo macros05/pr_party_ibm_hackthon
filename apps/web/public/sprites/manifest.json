@@ -1,0 +1,222 @@
+{
+  "version": 2,
+  "generated_at": "2026-05-16T16:14:09+0200",
+  "frame_size": [
+    92,
+    92
+  ],
+  "characters": {
+    "aegis": {
+      "animations": {
+        "hit": {
+          "file": "aegis/animations/hit/south",
+          "frames": 9,
+          "fps": 12,
+          "loop": false
+        },
+        "idle": {
+          "file": "aegis/animations/idle/south",
+          "frames": 4,
+          "fps": 6,
+          "loop": true
+        },
+        "scan": {
+          "file": "aegis/animations/scan/south",
+          "frames": 9,
+          "fps": 8,
+          "loop": true
+        },
+        "victory": {
+          "file": "aegis/animations/victory/south",
+          "frames": 9,
+          "fps": 10,
+          "loop": false
+        },
+        "walk": {
+          "file": "aegis/animations/walk/south",
+          "frames": 6,
+          "fps": 10,
+          "loop": true
+        }
+      }
+    },
+    "atlas": {
+      "animations": {
+        "hit": {
+          "file": "atlas/animations/hit/south",
+          "frames": 9,
+          "fps": 12,
+          "loop": false
+        },
+        "idle": {
+          "file": "atlas/animations/idle/south",
+          "frames": 4,
+          "fps": 6,
+          "loop": true
+        },
+        "scan": {
+          "file": "atlas/animations/scan/south",
+          "frames": 9,
+          "fps": 8,
+          "loop": true
+        },
+        "victory": {
+          "file": "atlas/animations/victory/south",
+          "frames": 9,
+          "fps": 10,
+          "loop": false
+        },
+        "walk": {
+          "file": "atlas/animations/walk/south",
+          "frames": 6,
+          "fps": 10,
+          "loop": true
+        }
+      }
+    },
+    "pixel": {
+      "animations": {
+        "hit": {
+          "file": "pixel/animations/hit/south",
+          "frames": 9,
+          "fps": 12,
+          "loop": false
+        },
+        "idle": {
+          "file": "pixel/animations/idle/south",
+          "frames": 4,
+          "fps": 6,
+          "loop": true
+        },
+        "scan": {
+          "file": "pixel/animations/scan/south",
+          "frames": 9,
+          "fps": 8,
+          "loop": true
+        },
+        "victory": {
+          "file": "pixel/animations/victory/south",
+          "frames": 9,
+          "fps": 10,
+          "loop": false
+        },
+        "walk": {
+          "file": "pixel/animations/walk/south",
+          "frames": 6,
+          "fps": 10,
+          "loop": true
+        }
+      }
+    },
+    "schema": {
+      "animations": {
+        "hit": {
+          "file": "schema/animations/hit/south",
+          "frames": 9,
+          "fps": 12,
+          "loop": false
+        },
+        "idle": {
+          "file": "schema/animations/idle/south",
+          "frames": 4,
+          "fps": 6,
+          "loop": true
+        },
+        "scan": {
+          "file": "schema/animations/scan/south",
+          "frames": 9,
+          "fps": 8,
+          "loop": true
+        },
+        "victory": {
+          "file": "schema/animations/victory/south",
+          "frames": 9,
+          "fps": 10,
+          "loop": false
+        },
+        "walk": {
+          "file": "schema/animations/walk/south",
+          "frames": 6,
+          "fps": 10,
+          "loop": true
+        }
+      }
+    },
+    "codex": {
+      "animations": {
+        "hit": {
+          "file": "codex/animations/hit/south",
+          "frames": 9,
+          "fps": 12,
+          "loop": false
+        },
+        "idle": {
+          "file": "codex/animations/idle/south",
+          "frames": 4,
+          "fps": 6,
+          "loop": true
+        },
+        "scan": {
+          "file": "codex/animations/scan/south",
+          "frames": 9,
+          "fps": 8,
+          "loop": true
+        },
+        "victory": {
+          "file": "codex/animations/victory/south",
+          "frames": 9,
+          "fps": 10,
+          "loop": false
+        },
+        "walk": {
+          "file": "codex/animations/walk/south",
+          "frames": 6,
+          "fps": 10,
+          "loop": true
+        }
+      }
+    },
+    "echo": {
+      "animations": {
+        "float": {
+          "file": "echo/animations/float/south",
+          "frames": 4,
+          "fps": 4,
+          "loop": true
+        },
+        "hit": {
+          "file": "echo/animations/hit/south",
+          "frames": 9,
+          "fps": 12,
+          "loop": false
+        },
+        "idle": {
+          "file": "echo/animations/idle/south",
+          "frames": 4,
+          "fps": 6,
+          "loop": true
+        },
+        "scan": {
+          "file": "echo/animations/scan/south",
+          "frames": 9,
+          "fps": 8,
+          "loop": true
+        },
+        "victory": {
+          "file": "echo/animations/victory/south",
+          "frames": 9,
+          "fps": 10,
+          "loop": false
+        }
+      }
+    }
+  },
+  "islands": {
+    "aegis": "/islands/aegis.png",
+    "atlas": "/islands/atlas.png",
+    "pixel": "/islands/pixel.png",
+    "schema": "/islands/schema.png",
+    "codex": "/islands/codex.png",
+    "echo": "/islands/echo.png"
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "group_id": null,
+  "states": [
+    {
+      "character": {
+        "id": "c718bc86-0cc4-468b-b4f0-fd404b29f0cf",
+        "name": "Chibi pixel art robot meditator in lotus position. Rounded helmet head with small pointed crest on top and horizontal visor slit emitting two glowing purple eye lights. Bone-white armored plating with purple accent details and glowing purple gem on chest. Sitting cross-legged in meditation pose, hands open and resting on knees. Color palette: bone white, cream, purple-violet accents. Soft cel-shading, crisp dark outline. NOTE: this character sits and levitates, does not have a standard walk cycle.",
+        "prompt": "Chibi pixel art robot meditator in lotus position. Rounded helmet head with small pointed crest on top and horizontal visor slit emitting two glowing purple eye lights. Bone-white armored plating with purple accent details and glowing purple gem on chest. Sitting cross-legged in meditation pose, hands open and resting on knees. Color palette: bone white, cream, purple-violet accents. Soft cel-shading, crisp dark outline. NOTE: this character sits and levitates, does not have a standard walk cycle.",
+        "size": {
+          "width": 92,
+          "height": 92
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "low top-down",
+        "created_at": "2026-05-16T14:03:10.883612+00:00"
+      },
+      "folder": "states/Chibi_pixel_art_robot_meditator_in_lotus_position.",
+      "frames": {
+        "rotations": {
+          "south": "states/Chibi_pixel_art_robot_meditator_in_lotus_position./rotations/south.png",
+          "south-east": "states/Chibi_pixel_art_robot_meditator_in_lotus_position./rotations/south-east.png",
+          "east": "states/Chibi_pixel_art_robot_meditator_in_lotus_position./rotations/east.png",
+          "north-east": "states/Chibi_pixel_art_robot_meditator_in_lotus_position./rotations/north-east.png",
+          "north": "states/Chibi_pixel_art_robot_meditator_in_lotus_position./rotations/north.png",
+          "north-west": "states/Chibi_pixel_art_robot_meditator_in_lotus_position./rotations/north-west.png",
+          "west": "states/Chibi_pixel_art_robot_meditator_in_lotus_position./rotations/west.png",
+          "south-west": "states/Chibi_pixel_art_robot_meditator_in_lotus_position./rotations/south-west.png"
+        },
+        "animations": {
+          "animating-07a159d8": {
+            "south": [
+              "states/Chibi_pixel_art_robot_meditator_in_lotus_position./animations/animating-07a159d8/south/frame_000.png",
+              "states/Chibi_pixel_art_robot_meditator_in_lotus_position./animations/animating-07a159d8/south/frame_001.png",
+              "states/Chibi_pixel_art_robot_meditator_in_lotus_position./animations/animating-07a159d8/south/frame_002.png",
+              "states/Chibi_pixel_art_robot_meditator_in_lotus_position./animations/animating-07a159d8/south/frame_003.png"
+            ]
+          },
+          "animating-54071fc8": {
+            "south": [
+              "states/Chibi_pixel_art_robot_meditator_in_lotus_position./animations/animating-54071fc8/south/frame_000.png",
+              "states/Chibi_pixel_art_robot_meditator_in_lotus_position./animations/animating-54071fc8/south/frame_001.png",
+              "states/Chibi_pixel_art_robot_meditator_in_lotus_position./animations/animating-54071fc8/south/frame_002.png",
+              "states/Chibi_pixel_art_robot_meditator_in_lotus_position./animations/animating-54071fc8/south/frame_003.png"
+            ]
+          },
+          "meditating_and_sensing_the_surroundings-ba9cfd8e": {
+            "south": [
+              "states/Chibi_pixel_art_robot_meditator_in_lotus_position./animations/meditating_and_sensing_the_surroundings-ba9cfd8e/south/frame_000.png",
+              "states/Chibi_pixel_art_robot_meditator_in_lotus_position./animations/meditating_and_sensing_the_surroundings-ba9cfd8e/south/frame_001.png",
+              "states/Chibi_pixel_art_robot_meditator_in_lotus_position./animations/meditating_and_sensing_the_surroundings-ba9cfd8e/south/frame_002.png",
+              "states/Chibi_pixel_art_robot_meditator_in_lotus_position./animations/meditating_and_sensing_the_surroundings-ba9cfd8e/south/frame_003.png",
+              "states/Chibi_pixel_art_robot_meditator_in_lotus_position./animations/meditating_and_sensing_the_surroundings-ba9cfd8e/south/frame_004.png",
+              "states/Chibi_pixel_art_robot_meditator_in_lotus_position./animations/meditating_and_sensing_the_surroundings-ba9cfd8e/south/frame_005.png",
+              "states/Chibi_pixel_art_robot_meditator_in_lotus_position./animations/meditating_and_sensing_the_surroundings-ba9cfd8e/south/frame_006.png",
+              "states/Chibi_pixel_art_robot_meditator_in_lotus_position./animations/meditating_and_sensing_the_surroundings-ba9cfd8e/south/frame_007.png",
+              "states/Chibi_pixel_art_robot_meditator_in_lotus_position./animations/meditating_and_sensing_the_surroundings-ba9cfd8e/south/frame_008.png"
+            ]
+          },
+          "arms_raised_in_serene_victory-07f7ce4f": {
+            "south": [
+              "states/Chibi_pixel_art_robot_meditator_in_lotus_position./animations/arms_raised_in_serene_victory-07f7ce4f/south/frame_000.png",
+              "states/Chibi_pixel_art_robot_meditator_in_lotus_position./animations/arms_raised_in_serene_victory-07f7ce4f/south/frame_001.png",
+              "states/Chibi_pixel_art_robot_meditator_in_lotus_position./animations/arms_raised_in_serene_victory-07f7ce4f/south/frame_002.png",
+              "states/Chibi_pixel_art_robot_meditator_in_lotus_position./animations/arms_raised_in_serene_victory-07f7ce4f/south/frame_003.png",
+              "states/Chibi_pixel_art_robot_meditator_in_lotus_position./animations/arms_raised_in_serene_victory-07f7ce4f/south/frame_004.png",
+              "states/Chibi_pixel_art_robot_meditator_in_lotus_position./animations/arms_raised_in_serene_victory-07f7ce4f/south/frame_005.png",
+              "states/Chibi_pixel_art_robot_meditator_in_lotus_position./animations/arms_raised_in_serene_victory-07f7ce4f/south/frame_006.png",
+              "states/Chibi_pixel_art_robot_meditator_in_lotus_position./animations/arms_raised_in_serene_victory-07f7ce4f/south/frame_007.png",
+              "states/Chibi_pixel_art_robot_meditator_in_lotus_position./animations/arms_raised_in_serene_victory-07f7ce4f/south/frame_008.png"
+            ]
+          },
+          "getting_hit_while_meditating-26c2409a": {
+            "south": [
+              "states/Chibi_pixel_art_robot_meditator_in_lotus_position./animations/getting_hit_while_meditating-26c2409a/south/frame_000.png",
+              "states/Chibi_pixel_art_robot_meditator_in_lotus_position./animations/getting_hit_while_meditating-26c2409a/south/frame_001.png",
+              "states/Chibi_pixel_art_robot_meditator_in_lotus_position./animations/getting_hit_while_meditating-26c2409a/south/frame_002.png",
+              "states/Chibi_pixel_art_robot_meditator_in_lotus_position./animations/getting_hit_while_meditating-26c2409a/south/frame_003.png",
+              "states/Chibi_pixel_art_robot_meditator_in_lotus_position./animations/getting_hit_while_meditating-26c2409a/south/frame_004.png",
+              "states/Chibi_pixel_art_robot_meditator_in_lotus_position./animations/getting_hit_while_meditating-26c2409a/south/frame_005.png",
+              "states/Chibi_pixel_art_robot_meditator_in_lotus_position./animations/getting_hit_while_meditating-26c2409a/south/frame_006.png",
+              "states/Chibi_pixel_art_robot_meditator_in_lotus_position./animations/getting_hit_while_meditating-26c2409a/south/frame_007.png",
+              "states/Chibi_pixel_art_robot_meditator_in_lotus_position./animations/getting_hit_while_meditating-26c2409a/south/frame_008.png"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "export_version": "3.0",
+  "export_date": "2026-05-16T14:13:27.939577"
+}

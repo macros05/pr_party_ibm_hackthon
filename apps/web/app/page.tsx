@@ -1,5 +1,9 @@
-import { BattleMap } from "@/components/BattleMap";
+import { redirect } from "next/navigation";
 
+/**
+ * The root route is just the entrance to Aegis' island. The old
+ * "council map" view has been retired (see `_deprecated/`).
+ */
 export default function Home() {
-  return <BattleMap />;
+  redirect("/island/aegis");
 }

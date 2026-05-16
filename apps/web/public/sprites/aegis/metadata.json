@@ -1,0 +1,94 @@
+{
+  "group_id": null,
+  "states": [
+    {
+      "character": {
+        "id": "548b096b-85eb-4cab-a3aa-b75f802a42e8",
+        "name": "Chibi pixel art robot paladin. Bipedal stocky proportions, large rounded helmet head with horizontal visor slit emitting two glowing amber-orange eye lights. Bone-white and cream armored plating with visible panel lines. Heavy rounded shoulder pauldrons, gauntleted three-finger hands, armored boots. Small orange power core glowing on chest center. Holds a kite-shaped knight shield in the right hand featuring a large stylized orange T emblem on its face. Color palette: bone white, cream, stone gray, orange accents. Soft cel-shading, crisp dark outline.",
+        "prompt": "Chibi pixel art robot paladin. Bipedal stocky proportions, large rounded helmet head with horizontal visor slit emitting two glowing amber-orange eye lights. Bone-white and cream armored plating with visible panel lines. Heavy rounded shoulder pauldrons, gauntleted three-finger hands, armored boots. Small orange power core glowing on chest center. Holds a kite-shaped knight shield in the right hand featuring a large stylized orange T emblem on its face. Color palette: bone white, cream, stone gray, orange accents. Soft cel-shading, crisp dark outline.",
+        "size": {
+          "width": 92,
+          "height": 92
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "low top-down",
+        "created_at": "2026-05-16T12:32:21.362881+00:00"
+      },
+      "folder": "states/Chibi_pixel_art_robot_paladin._Bipedal_stocky_prop",
+      "frames": {
+        "rotations": {
+          "south": "states/Chibi_pixel_art_robot_paladin._Bipedal_stocky_prop/rotations/south.png",
+          "south-east": "states/Chibi_pixel_art_robot_paladin._Bipedal_stocky_prop/rotations/south-east.png",
+          "east": "states/Chibi_pixel_art_robot_paladin._Bipedal_stocky_prop/rotations/east.png",
+          "north-east": "states/Chibi_pixel_art_robot_paladin._Bipedal_stocky_prop/rotations/north-east.png",
+          "north": "states/Chibi_pixel_art_robot_paladin._Bipedal_stocky_prop/rotations/north.png",
+          "north-west": "states/Chibi_pixel_art_robot_paladin._Bipedal_stocky_prop/rotations/north-west.png",
+          "west": "states/Chibi_pixel_art_robot_paladin._Bipedal_stocky_prop/rotations/west.png",
+          "south-west": "states/Chibi_pixel_art_robot_paladin._Bipedal_stocky_prop/rotations/south-west.png"
+        },
+        "animations": {
+          "getting_hit_and_staggering-5c3f3125": {
+            "south": [
+              "states/Chibi_pixel_art_robot_paladin._Bipedal_stocky_prop/animations/getting_hit_and_staggering-5c3f3125/south/frame_000.png",
+              "states/Chibi_pixel_art_robot_paladin._Bipedal_stocky_prop/animations/getting_hit_and_staggering-5c3f3125/south/frame_001.png",
+              "states/Chibi_pixel_art_robot_paladin._Bipedal_stocky_prop/animations/getting_hit_and_staggering-5c3f3125/south/frame_002.png",
+              "states/Chibi_pixel_art_robot_paladin._Bipedal_stocky_prop/animations/getting_hit_and_staggering-5c3f3125/south/frame_003.png",
+              "states/Chibi_pixel_art_robot_paladin._Bipedal_stocky_prop/animations/getting_hit_and_staggering-5c3f3125/south/frame_004.png",
+              "states/Chibi_pixel_art_robot_paladin._Bipedal_stocky_prop/animations/getting_hit_and_staggering-5c3f3125/south/frame_005.png",
+              "states/Chibi_pixel_art_robot_paladin._Bipedal_stocky_prop/animations/getting_hit_and_staggering-5c3f3125/south/frame_006.png",
+              "states/Chibi_pixel_art_robot_paladin._Bipedal_stocky_prop/animations/getting_hit_and_staggering-5c3f3125/south/frame_007.png",
+              "states/Chibi_pixel_art_robot_paladin._Bipedal_stocky_prop/animations/getting_hit_and_staggering-5c3f3125/south/frame_008.png"
+            ]
+          },
+          "animating-5728528b": {
+            "south": [
+              "states/Chibi_pixel_art_robot_paladin._Bipedal_stocky_prop/animations/animating-5728528b/south/frame_000.png",
+              "states/Chibi_pixel_art_robot_paladin._Bipedal_stocky_prop/animations/animating-5728528b/south/frame_001.png",
+              "states/Chibi_pixel_art_robot_paladin._Bipedal_stocky_prop/animations/animating-5728528b/south/frame_002.png",
+              "states/Chibi_pixel_art_robot_paladin._Bipedal_stocky_prop/animations/animating-5728528b/south/frame_003.png"
+            ]
+          },
+          "walking-c509704f": {
+            "south": [
+              "states/Chibi_pixel_art_robot_paladin._Bipedal_stocky_prop/animations/walking-c509704f/south/frame_000.png",
+              "states/Chibi_pixel_art_robot_paladin._Bipedal_stocky_prop/animations/walking-c509704f/south/frame_001.png",
+              "states/Chibi_pixel_art_robot_paladin._Bipedal_stocky_prop/animations/walking-c509704f/south/frame_002.png",
+              "states/Chibi_pixel_art_robot_paladin._Bipedal_stocky_prop/animations/walking-c509704f/south/frame_003.png",
+              "states/Chibi_pixel_art_robot_paladin._Bipedal_stocky_prop/animations/walking-c509704f/south/frame_004.png",
+              "states/Chibi_pixel_art_robot_paladin._Bipedal_stocky_prop/animations/walking-c509704f/south/frame_005.png"
+            ]
+          },
+          "looking_around_and_scanning-4338ceaa": {
+            "south": [
+              "states/Chibi_pixel_art_robot_paladin._Bipedal_stocky_prop/animations/looking_around_and_scanning-4338ceaa/south/frame_000.png",
+              "states/Chibi_pixel_art_robot_paladin._Bipedal_stocky_prop/animations/looking_around_and_scanning-4338ceaa/south/frame_001.png",
+              "states/Chibi_pixel_art_robot_paladin._Bipedal_stocky_prop/animations/looking_around_and_scanning-4338ceaa/south/frame_002.png",
+              "states/Chibi_pixel_art_robot_paladin._Bipedal_stocky_prop/animations/looking_around_and_scanning-4338ceaa/south/frame_003.png",
+              "states/Chibi_pixel_art_robot_paladin._Bipedal_stocky_prop/animations/looking_around_and_scanning-4338ceaa/south/frame_004.png",
+              "states/Chibi_pixel_art_robot_paladin._Bipedal_stocky_prop/animations/looking_around_and_scanning-4338ceaa/south/frame_005.png",
+              "states/Chibi_pixel_art_robot_paladin._Bipedal_stocky_prop/animations/looking_around_and_scanning-4338ceaa/south/frame_006.png",
+              "states/Chibi_pixel_art_robot_paladin._Bipedal_stocky_prop/animations/looking_around_and_scanning-4338ceaa/south/frame_007.png",
+              "states/Chibi_pixel_art_robot_paladin._Bipedal_stocky_prop/animations/looking_around_and_scanning-4338ceaa/south/frame_008.png"
+            ]
+          },
+          "cheering_victory_pose-bea2efb1": {
+            "south": [
+              "states/Chibi_pixel_art_robot_paladin._Bipedal_stocky_prop/animations/cheering_victory_pose-bea2efb1/south/frame_000.png",
+              "states/Chibi_pixel_art_robot_paladin._Bipedal_stocky_prop/animations/cheering_victory_pose-bea2efb1/south/frame_001.png",
+              "states/Chibi_pixel_art_robot_paladin._Bipedal_stocky_prop/animations/cheering_victory_pose-bea2efb1/south/frame_002.png",
+              "states/Chibi_pixel_art_robot_paladin._Bipedal_stocky_prop/animations/cheering_victory_pose-bea2efb1/south/frame_003.png",
+              "states/Chibi_pixel_art_robot_paladin._Bipedal_stocky_prop/animations/cheering_victory_pose-bea2efb1/south/frame_004.png",
+              "states/Chibi_pixel_art_robot_paladin._Bipedal_stocky_prop/animations/cheering_victory_pose-bea2efb1/south/frame_005.png",
+              "states/Chibi_pixel_art_robot_paladin._Bipedal_stocky_prop/animations/cheering_victory_pose-bea2efb1/south/frame_006.png",
+              "states/Chibi_pixel_art_robot_paladin._Bipedal_stocky_prop/animations/cheering_victory_pose-bea2efb1/south/frame_007.png",
+              "states/Chibi_pixel_art_robot_paladin._Bipedal_stocky_prop/animations/cheering_victory_pose-bea2efb1/south/frame_008.png"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "export_version": "3.0",
+  "export_date": "2026-05-16T12:49:53.687899"
+}

@@ -1,0 +1,94 @@
+{
+  "group_id": null,
+  "states": [
+    {
+      "character": {
+        "id": "40172c12-42ea-47ce-a299-83f856463afc",
+        "name": "Chibi pixel art robot scholar with white hooded cloak. Bipedal compact proportions, rounded helmet head with horizontal visor slit emitting two glowing golden-yellow eye lights, covered partially by a white hood with gold trim. White cloak flowing behind. Holds a quill pen in one hand and an open golden scroll in the other. Small glowing gem ornament hanging from belt. Color palette: bone white, cream, golden yellow accents. Soft cel-shading, crisp dark outline.",
+        "prompt": "Chibi pixel art robot scholar with white hooded cloak. Bipedal compact proportions, rounded helmet head with horizontal visor slit emitting two glowing golden-yellow eye lights, covered partially by a white hood with gold trim. White cloak flowing behind. Holds a quill pen in one hand and an open golden scroll in the other. Small glowing gem ornament hanging from belt. Color palette: bone white, cream, golden yellow accents. Soft cel-shading, crisp dark outline.",
+        "size": {
+          "width": 92,
+          "height": 92
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "low top-down",
+        "created_at": "2026-05-16T13:52:55.697403+00:00"
+      },
+      "folder": "states/Chibi_pixel_art_robot_scholar_with_white_hooded_cl",
+      "frames": {
+        "rotations": {
+          "south": "states/Chibi_pixel_art_robot_scholar_with_white_hooded_cl/rotations/south.png",
+          "south-east": "states/Chibi_pixel_art_robot_scholar_with_white_hooded_cl/rotations/south-east.png",
+          "east": "states/Chibi_pixel_art_robot_scholar_with_white_hooded_cl/rotations/east.png",
+          "north-east": "states/Chibi_pixel_art_robot_scholar_with_white_hooded_cl/rotations/north-east.png",
+          "north": "states/Chibi_pixel_art_robot_scholar_with_white_hooded_cl/rotations/north.png",
+          "north-west": "states/Chibi_pixel_art_robot_scholar_with_white_hooded_cl/rotations/north-west.png",
+          "west": "states/Chibi_pixel_art_robot_scholar_with_white_hooded_cl/rotations/west.png",
+          "south-west": "states/Chibi_pixel_art_robot_scholar_with_white_hooded_cl/rotations/south-west.png"
+        },
+        "animations": {
+          "animating-2f4adfb0": {
+            "south": [
+              "states/Chibi_pixel_art_robot_scholar_with_white_hooded_cl/animations/animating-2f4adfb0/south/frame_000.png",
+              "states/Chibi_pixel_art_robot_scholar_with_white_hooded_cl/animations/animating-2f4adfb0/south/frame_001.png",
+              "states/Chibi_pixel_art_robot_scholar_with_white_hooded_cl/animations/animating-2f4adfb0/south/frame_002.png",
+              "states/Chibi_pixel_art_robot_scholar_with_white_hooded_cl/animations/animating-2f4adfb0/south/frame_003.png"
+            ]
+          },
+          "looking_around_and_scanning-45cb71be": {
+            "south": [
+              "states/Chibi_pixel_art_robot_scholar_with_white_hooded_cl/animations/looking_around_and_scanning-45cb71be/south/frame_000.png",
+              "states/Chibi_pixel_art_robot_scholar_with_white_hooded_cl/animations/looking_around_and_scanning-45cb71be/south/frame_001.png",
+              "states/Chibi_pixel_art_robot_scholar_with_white_hooded_cl/animations/looking_around_and_scanning-45cb71be/south/frame_002.png",
+              "states/Chibi_pixel_art_robot_scholar_with_white_hooded_cl/animations/looking_around_and_scanning-45cb71be/south/frame_003.png",
+              "states/Chibi_pixel_art_robot_scholar_with_white_hooded_cl/animations/looking_around_and_scanning-45cb71be/south/frame_004.png",
+              "states/Chibi_pixel_art_robot_scholar_with_white_hooded_cl/animations/looking_around_and_scanning-45cb71be/south/frame_005.png",
+              "states/Chibi_pixel_art_robot_scholar_with_white_hooded_cl/animations/looking_around_and_scanning-45cb71be/south/frame_006.png",
+              "states/Chibi_pixel_art_robot_scholar_with_white_hooded_cl/animations/looking_around_and_scanning-45cb71be/south/frame_007.png",
+              "states/Chibi_pixel_art_robot_scholar_with_white_hooded_cl/animations/looking_around_and_scanning-45cb71be/south/frame_008.png"
+            ]
+          },
+          "walking-04591b8b": {
+            "south": [
+              "states/Chibi_pixel_art_robot_scholar_with_white_hooded_cl/animations/walking-04591b8b/south/frame_000.png",
+              "states/Chibi_pixel_art_robot_scholar_with_white_hooded_cl/animations/walking-04591b8b/south/frame_001.png",
+              "states/Chibi_pixel_art_robot_scholar_with_white_hooded_cl/animations/walking-04591b8b/south/frame_002.png",
+              "states/Chibi_pixel_art_robot_scholar_with_white_hooded_cl/animations/walking-04591b8b/south/frame_003.png",
+              "states/Chibi_pixel_art_robot_scholar_with_white_hooded_cl/animations/walking-04591b8b/south/frame_004.png",
+              "states/Chibi_pixel_art_robot_scholar_with_white_hooded_cl/animations/walking-04591b8b/south/frame_005.png"
+            ]
+          },
+          "cheering_victory_pose-b6f5d737": {
+            "south": [
+              "states/Chibi_pixel_art_robot_scholar_with_white_hooded_cl/animations/cheering_victory_pose-b6f5d737/south/frame_000.png",
+              "states/Chibi_pixel_art_robot_scholar_with_white_hooded_cl/animations/cheering_victory_pose-b6f5d737/south/frame_001.png",
+              "states/Chibi_pixel_art_robot_scholar_with_white_hooded_cl/animations/cheering_victory_pose-b6f5d737/south/frame_002.png",
+              "states/Chibi_pixel_art_robot_scholar_with_white_hooded_cl/animations/cheering_victory_pose-b6f5d737/south/frame_003.png",
+              "states/Chibi_pixel_art_robot_scholar_with_white_hooded_cl/animations/cheering_victory_pose-b6f5d737/south/frame_004.png",
+              "states/Chibi_pixel_art_robot_scholar_with_white_hooded_cl/animations/cheering_victory_pose-b6f5d737/south/frame_005.png",
+              "states/Chibi_pixel_art_robot_scholar_with_white_hooded_cl/animations/cheering_victory_pose-b6f5d737/south/frame_006.png",
+              "states/Chibi_pixel_art_robot_scholar_with_white_hooded_cl/animations/cheering_victory_pose-b6f5d737/south/frame_007.png",
+              "states/Chibi_pixel_art_robot_scholar_with_white_hooded_cl/animations/cheering_victory_pose-b6f5d737/south/frame_008.png"
+            ]
+          },
+          "getting_hit_and_staggering-eb96b847": {
+            "south": [
+              "states/Chibi_pixel_art_robot_scholar_with_white_hooded_cl/animations/getting_hit_and_staggering-eb96b847/south/frame_000.png",
+              "states/Chibi_pixel_art_robot_scholar_with_white_hooded_cl/animations/getting_hit_and_staggering-eb96b847/south/frame_001.png",
+              "states/Chibi_pixel_art_robot_scholar_with_white_hooded_cl/animations/getting_hit_and_staggering-eb96b847/south/frame_002.png",
+              "states/Chibi_pixel_art_robot_scholar_with_white_hooded_cl/animations/getting_hit_and_staggering-eb96b847/south/frame_003.png",
+              "states/Chibi_pixel_art_robot_scholar_with_white_hooded_cl/animations/getting_hit_and_staggering-eb96b847/south/frame_004.png",
+              "states/Chibi_pixel_art_robot_scholar_with_white_hooded_cl/animations/getting_hit_and_staggering-eb96b847/south/frame_005.png",
+              "states/Chibi_pixel_art_robot_scholar_with_white_hooded_cl/animations/getting_hit_and_staggering-eb96b847/south/frame_006.png",
+              "states/Chibi_pixel_art_robot_scholar_with_white_hooded_cl/animations/getting_hit_and_staggering-eb96b847/south/frame_007.png",
+              "states/Chibi_pixel_art_robot_scholar_with_white_hooded_cl/animations/getting_hit_and_staggering-eb96b847/south/frame_008.png"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "export_version": "3.0",
+  "export_date": "2026-05-16T14:03:09.819492"
+}

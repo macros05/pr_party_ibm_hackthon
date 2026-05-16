@@ -1,0 +1,48 @@
+{
+  "animations": {
+    "hit": {
+      "frame_count": 9,
+      "south_dir": "animations/hit/south",
+      "fps": 12,
+      "loop": false
+    },
+    "idle": {
+      "frame_count": 4,
+      "south_dir": "animations/idle/south",
+      "fps": 6,
+      "loop": true
+    },
+    "scan": {
+      "frame_count": 9,
+      "south_dir": "animations/scan/south",
+      "fps": 8,
+      "loop": true
+    },
+    "victory": {
+      "frame_count": 9,
+      "south_dir": "animations/victory/south",
+      "fps": 10,
+      "loop": false
+    },
+    "walk": {
+      "frame_count": 6,
+      "south_dir": "animations/walk/south",
+      "fps": 10,
+      "loop": true
+    }
+  },
+  "rotations": [
+    "east",
+    "north",
+    "north-east",
+    "north-west",
+    "south",
+    "south-east",
+    "south-west",
+    "west"
+  ],
+  "frame_size": [
+    92,
+    92
+  ]
+}

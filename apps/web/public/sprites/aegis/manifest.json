@@ -1,0 +1,95 @@
+{
+  "animations": {
+    "hit": {
+      "frames": [
+        "frame_000.png",
+        "frame_001.png",
+        "frame_002.png",
+        "frame_003.png",
+        "frame_004.png",
+        "frame_005.png",
+        "frame_006.png",
+        "frame_007.png",
+        "frame_008.png"
+      ],
+      "frame_count": 9,
+      "south_dir": "animations/hit/south",
+      "fps": 12,
+      "loop": false
+    },
+    "idle": {
+      "frames": [
+        "frame_000.png",
+        "frame_001.png",
+        "frame_002.png",
+        "frame_003.png"
+      ],
+      "frame_count": 4,
+      "south_dir": "animations/idle/south",
+      "fps": 6,
+      "loop": true
+    },
+    "scan": {
+      "frames": [
+        "frame_000.png",
+        "frame_001.png",
+        "frame_002.png",
+        "frame_003.png",
+        "frame_004.png",
+        "frame_005.png",
+        "frame_006.png",
+        "frame_007.png",
+        "frame_008.png"
+      ],
+      "frame_count": 9,
+      "south_dir": "animations/scan/south",
+      "fps": 8,
+      "loop": true
+    },
+    "victory": {
+      "frames": [
+        "frame_000.png",
+        "frame_001.png",
+        "frame_002.png",
+        "frame_003.png",
+        "frame_004.png",
+        "frame_005.png",
+        "frame_006.png",
+        "frame_007.png",
+        "frame_008.png"
+      ],
+      "frame_count": 9,
+      "south_dir": "animations/victory/south",
+      "fps": 10,
+      "loop": false
+    },
+    "walk": {
+      "frames": [
+        "frame_000.png",
+        "frame_001.png",
+        "frame_002.png",
+        "frame_003.png",
+        "frame_004.png",
+        "frame_005.png"
+      ],
+      "frame_count": 6,
+      "south_dir": "animations/walk/south",
+      "fps": 10,
+      "loop": true
+    }
+  },
+  "rotations": [
+    "east",
+    "north",
+    "north-east",
+    "north-west",
+    "south",
+    "south-east",
+    "south-west",
+    "west"
+  ],
+  "frame_size": [
+    92,
+    92
+  ]
+}

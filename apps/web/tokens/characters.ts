@@ -1,8 +1,4 @@
-import type {
-  CharacterId,
-  CharacterName,
-  CharacterClass,
-} from "@/types/encounter";
+import type { CharacterId, CharacterName } from "@/types/encounter";
 
 /**
  * Per-character "island archetype" — narrative type of the floating land.
@@ -19,9 +15,15 @@ export type IslandArchetype =
 export interface CharacterToken {
   id: CharacterId;
   name: CharacterName;
-  class: CharacterClass;
-  /** Domain shorthand for badges (`"Security"`, `"Tests"`...). */
+  /**
+   * Display class label. Decoupled from `CharacterClass` in the backend
+   * encounter contract — UI lore can evolve without breaking the API.
+   */
+  class: string;
+  /** Domain shorthand for badges (`"Security"`, `"Tests"`, `"Comms"`...). */
   classShort: string;
+  /** Full flavor paragraph shown on the character island. */
+  description: string;
   defaultLevel: number;
   /** Island archetype — drives which inline SVG island renders. */
   island: IslandArchetype;
@@ -59,6 +61,8 @@ export const CHARACTERS: Record<CharacterId, CharacterToken> = {
     name: "Aegis",
     class: "Security Paladin",
     classShort: "Security",
+    description:
+      "Aegis hunts the kind of bugs that ship to prod and don't come back: forged sessions, hardcoded secrets, broken auth, SSRF tunnels.",
     defaultLevel: 8,
     island: "ember-fortress",
     accent: "#C2410C",
@@ -81,6 +85,8 @@ export const CHARACTERS: Record<CharacterId, CharacterToken> = {
     name: "Schema",
     class: "Database Mage",
     classShort: "Database",
+    description:
+      "Schema reads every migration like a contract. Field by field, foreign key by foreign key, looking for the column that lies about itself.",
     defaultLevel: 7,
     island: "aquatic-library",
     accent: "#0E7490",
@@ -103,6 +109,8 @@ export const CHARACTERS: Record<CharacterId, CharacterToken> = {
     name: "Pixel",
     class: "UX Bard",
     classShort: "UX",
+    description:
+      "Pixel reads the diff like a designer. Focus, copy, contrast, motion. He'll catch a 'whoopsie!' modal before it ever ships.",
     defaultLevel: 6,
     island: "luminous-garden",
     accent: "#BE185D",
@@ -125,6 +133,8 @@ export const CHARACTERS: Record<CharacterId, CharacterToken> = {
     name: "Atlas",
     class: "Architecture Ranger",
     classShort: "Architecture",
+    description:
+      "Atlas watches the seams. He flags the moment one module reaches into another, sniffs out missing flags, untangles drifting layers.",
     defaultLevel: 9,
     island: "cartographer-peak",
     accent: "#4D7C0F",
@@ -145,8 +155,10 @@ export const CHARACTERS: Record<CharacterId, CharacterToken> = {
   echo: {
     id: "echo",
     name: "Echo",
-    class: "Test Cleric",
-    classShort: "Tests",
+    class: "Signal Operative",
+    classShort: "Comms",
+    description:
+      "Echo tracks the silent things: stale endpoints, ghosted heartbeats, the retries that never come back. When the system goes quiet, Echo listens.",
     defaultLevel: 7,
     island: "rune-temple",
     accent: "#6D28D9",
@@ -169,6 +181,8 @@ export const CHARACTERS: Record<CharacterId, CharacterToken> = {
     name: "Codex",
     class: "Documentation Scribe",
     classShort: "Docs",
+    description:
+      "Codex keeps the docs in lockstep with the diff. If the README still describes last quarter's architecture, Codex marks it down.",
     defaultLevel: 5,
     island: "scroll-tower",
     accent: "#B45309",

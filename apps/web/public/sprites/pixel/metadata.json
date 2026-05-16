@@ -1,0 +1,94 @@
+{
+  "group_id": null,
+  "states": [
+    {
+      "character": {
+        "id": "c77f234e-c43c-4773-bc72-79935dc14973",
+        "name": "Chibi pixel art robot artist with sassy pose. Bipedal slim athletic proportions, rounded helmet head with horizontal visor slit emitting two glowing magenta-pink eye lights. Bone-white armored plating with small magenta accents on chest panel and joints. Small antenna sticking up. One hand on hip, the other pointing with index finger. Color palette: bone white, cream, magenta-pink accents. Soft cel-shading, crisp dark outline.",
+        "prompt": "Chibi pixel art robot artist with sassy pose. Bipedal slim athletic proportions, rounded helmet head with horizontal visor slit emitting two glowing magenta-pink eye lights. Bone-white armored plating with small magenta accents on chest panel and joints. Small antenna sticking up. One hand on hip, the other pointing with index finger. Color palette: bone white, cream, magenta-pink accents. Soft cel-shading, crisp dark outline.",
+        "size": {
+          "width": 92,
+          "height": 92
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "low top-down",
+        "created_at": "2026-05-16T13:31:27.999681+00:00"
+      },
+      "folder": "states/Chibi_pixel_art_robot_artist_with_sassy_pose._Bipe",
+      "frames": {
+        "rotations": {
+          "south": "states/Chibi_pixel_art_robot_artist_with_sassy_pose._Bipe/rotations/south.png",
+          "south-east": "states/Chibi_pixel_art_robot_artist_with_sassy_pose._Bipe/rotations/south-east.png",
+          "east": "states/Chibi_pixel_art_robot_artist_with_sassy_pose._Bipe/rotations/east.png",
+          "north-east": "states/Chibi_pixel_art_robot_artist_with_sassy_pose._Bipe/rotations/north-east.png",
+          "north": "states/Chibi_pixel_art_robot_artist_with_sassy_pose._Bipe/rotations/north.png",
+          "north-west": "states/Chibi_pixel_art_robot_artist_with_sassy_pose._Bipe/rotations/north-west.png",
+          "west": "states/Chibi_pixel_art_robot_artist_with_sassy_pose._Bipe/rotations/west.png",
+          "south-west": "states/Chibi_pixel_art_robot_artist_with_sassy_pose._Bipe/rotations/south-west.png"
+        },
+        "animations": {
+          "walking-3d9d8350": {
+            "south": [
+              "states/Chibi_pixel_art_robot_artist_with_sassy_pose._Bipe/animations/walking-3d9d8350/south/frame_000.png",
+              "states/Chibi_pixel_art_robot_artist_with_sassy_pose._Bipe/animations/walking-3d9d8350/south/frame_001.png",
+              "states/Chibi_pixel_art_robot_artist_with_sassy_pose._Bipe/animations/walking-3d9d8350/south/frame_002.png",
+              "states/Chibi_pixel_art_robot_artist_with_sassy_pose._Bipe/animations/walking-3d9d8350/south/frame_003.png",
+              "states/Chibi_pixel_art_robot_artist_with_sassy_pose._Bipe/animations/walking-3d9d8350/south/frame_004.png",
+              "states/Chibi_pixel_art_robot_artist_with_sassy_pose._Bipe/animations/walking-3d9d8350/south/frame_005.png"
+            ]
+          },
+          "animating-87336838": {
+            "south": [
+              "states/Chibi_pixel_art_robot_artist_with_sassy_pose._Bipe/animations/animating-87336838/south/frame_000.png",
+              "states/Chibi_pixel_art_robot_artist_with_sassy_pose._Bipe/animations/animating-87336838/south/frame_001.png",
+              "states/Chibi_pixel_art_robot_artist_with_sassy_pose._Bipe/animations/animating-87336838/south/frame_002.png",
+              "states/Chibi_pixel_art_robot_artist_with_sassy_pose._Bipe/animations/animating-87336838/south/frame_003.png"
+            ]
+          },
+          "looking_around_and_scanning-975ba109": {
+            "south": [
+              "states/Chibi_pixel_art_robot_artist_with_sassy_pose._Bipe/animations/looking_around_and_scanning-975ba109/south/frame_000.png",
+              "states/Chibi_pixel_art_robot_artist_with_sassy_pose._Bipe/animations/looking_around_and_scanning-975ba109/south/frame_001.png",
+              "states/Chibi_pixel_art_robot_artist_with_sassy_pose._Bipe/animations/looking_around_and_scanning-975ba109/south/frame_002.png",
+              "states/Chibi_pixel_art_robot_artist_with_sassy_pose._Bipe/animations/looking_around_and_scanning-975ba109/south/frame_003.png",
+              "states/Chibi_pixel_art_robot_artist_with_sassy_pose._Bipe/animations/looking_around_and_scanning-975ba109/south/frame_004.png",
+              "states/Chibi_pixel_art_robot_artist_with_sassy_pose._Bipe/animations/looking_around_and_scanning-975ba109/south/frame_005.png",
+              "states/Chibi_pixel_art_robot_artist_with_sassy_pose._Bipe/animations/looking_around_and_scanning-975ba109/south/frame_006.png",
+              "states/Chibi_pixel_art_robot_artist_with_sassy_pose._Bipe/animations/looking_around_and_scanning-975ba109/south/frame_007.png",
+              "states/Chibi_pixel_art_robot_artist_with_sassy_pose._Bipe/animations/looking_around_and_scanning-975ba109/south/frame_008.png"
+            ]
+          },
+          "cheering_victory_pose-8a89ec4f": {
+            "south": [
+              "states/Chibi_pixel_art_robot_artist_with_sassy_pose._Bipe/animations/cheering_victory_pose-8a89ec4f/south/frame_000.png",
+              "states/Chibi_pixel_art_robot_artist_with_sassy_pose._Bipe/animations/cheering_victory_pose-8a89ec4f/south/frame_001.png",
+              "states/Chibi_pixel_art_robot_artist_with_sassy_pose._Bipe/animations/cheering_victory_pose-8a89ec4f/south/frame_002.png",
+              "states/Chibi_pixel_art_robot_artist_with_sassy_pose._Bipe/animations/cheering_victory_pose-8a89ec4f/south/frame_003.png",
+              "states/Chibi_pixel_art_robot_artist_with_sassy_pose._Bipe/animations/cheering_victory_pose-8a89ec4f/south/frame_004.png",
+              "states/Chibi_pixel_art_robot_artist_with_sassy_pose._Bipe/animations/cheering_victory_pose-8a89ec4f/south/frame_005.png",
+              "states/Chibi_pixel_art_robot_artist_with_sassy_pose._Bipe/animations/cheering_victory_pose-8a89ec4f/south/frame_006.png",
+              "states/Chibi_pixel_art_robot_artist_with_sassy_pose._Bipe/animations/cheering_victory_pose-8a89ec4f/south/frame_007.png",
+              "states/Chibi_pixel_art_robot_artist_with_sassy_pose._Bipe/animations/cheering_victory_pose-8a89ec4f/south/frame_008.png"
+            ]
+          },
+          "getting_hit_and_staggering-495ec39d": {
+            "south": [
+              "states/Chibi_pixel_art_robot_artist_with_sassy_pose._Bipe/animations/getting_hit_and_staggering-495ec39d/south/frame_000.png",
+              "states/Chibi_pixel_art_robot_artist_with_sassy_pose._Bipe/animations/getting_hit_and_staggering-495ec39d/south/frame_001.png",
+              "states/Chibi_pixel_art_robot_artist_with_sassy_pose._Bipe/animations/getting_hit_and_staggering-495ec39d/south/frame_002.png",
+              "states/Chibi_pixel_art_robot_artist_with_sassy_pose._Bipe/animations/getting_hit_and_staggering-495ec39d/south/frame_003.png",
+              "states/Chibi_pixel_art_robot_artist_with_sassy_pose._Bipe/animations/getting_hit_and_staggering-495ec39d/south/frame_004.png",
+              "states/Chibi_pixel_art_robot_artist_with_sassy_pose._Bipe/animations/getting_hit_and_staggering-495ec39d/south/frame_005.png",
+              "states/Chibi_pixel_art_robot_artist_with_sassy_pose._Bipe/animations/getting_hit_and_staggering-495ec39d/south/frame_006.png",
+              "states/Chibi_pixel_art_robot_artist_with_sassy_pose._Bipe/animations/getting_hit_and_staggering-495ec39d/south/frame_007.png",
+              "states/Chibi_pixel_art_robot_artist_with_sassy_pose._Bipe/animations/getting_hit_and_staggering-495ec39d/south/frame_008.png"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "export_version": "3.0",
+  "export_date": "2026-05-16T13:42:56.533287"
+}

@@ -1,0 +1,94 @@
+{
+  "group_id": null,
+  "states": [
+    {
+      "character": {
+        "id": "2f0df1c4-b02e-4041-bf58-9ddba4b8aafc",
+        "name": "Chibi pixel art robot analyst with four arms. Bipedal slender proportions, rounded helmet head with horizontal visor slit emitting two glowing cyan eye lights. Bone-white armored plating with cyan accent details and small cyan gem on chest. Four articulated arms total (two upper, two lower) for analyzing data. Small antenna on head. Color palette: bone white, cream, cyan accents. Soft cel-shading, crisp dark outline.",
+        "prompt": "Chibi pixel art robot analyst with four arms. Bipedal slender proportions, rounded helmet head with horizontal visor slit emitting two glowing cyan eye lights. Bone-white armored plating with cyan accent details and small cyan gem on chest. Four articulated arms total (two upper, two lower) for analyzing data. Small antenna on head. Color palette: bone white, cream, cyan accents. Soft cel-shading, crisp dark outline.",
+        "size": {
+          "width": 92,
+          "height": 92
+        },
+        "template_id": "mannequin",
+        "directions": 8,
+        "view": "low top-down",
+        "created_at": "2026-05-16T13:42:57.829868+00:00"
+      },
+      "folder": "states/Chibi_pixel_art_robot_analyst_with_four_arms._Bipe",
+      "frames": {
+        "rotations": {
+          "south": "states/Chibi_pixel_art_robot_analyst_with_four_arms._Bipe/rotations/south.png",
+          "south-east": "states/Chibi_pixel_art_robot_analyst_with_four_arms._Bipe/rotations/south-east.png",
+          "east": "states/Chibi_pixel_art_robot_analyst_with_four_arms._Bipe/rotations/east.png",
+          "north-east": "states/Chibi_pixel_art_robot_analyst_with_four_arms._Bipe/rotations/north-east.png",
+          "north": "states/Chibi_pixel_art_robot_analyst_with_four_arms._Bipe/rotations/north.png",
+          "north-west": "states/Chibi_pixel_art_robot_analyst_with_four_arms._Bipe/rotations/north-west.png",
+          "west": "states/Chibi_pixel_art_robot_analyst_with_four_arms._Bipe/rotations/west.png",
+          "south-west": "states/Chibi_pixel_art_robot_analyst_with_four_arms._Bipe/rotations/south-west.png"
+        },
+        "animations": {
+          "walking-134a55ce": {
+            "south": [
+              "states/Chibi_pixel_art_robot_analyst_with_four_arms._Bipe/animations/walking-134a55ce/south/frame_000.png",
+              "states/Chibi_pixel_art_robot_analyst_with_four_arms._Bipe/animations/walking-134a55ce/south/frame_001.png",
+              "states/Chibi_pixel_art_robot_analyst_with_four_arms._Bipe/animations/walking-134a55ce/south/frame_002.png",
+              "states/Chibi_pixel_art_robot_analyst_with_four_arms._Bipe/animations/walking-134a55ce/south/frame_003.png",
+              "states/Chibi_pixel_art_robot_analyst_with_four_arms._Bipe/animations/walking-134a55ce/south/frame_004.png",
+              "states/Chibi_pixel_art_robot_analyst_with_four_arms._Bipe/animations/walking-134a55ce/south/frame_005.png"
+            ]
+          },
+          "animating-87472a51": {
+            "south": [
+              "states/Chibi_pixel_art_robot_analyst_with_four_arms._Bipe/animations/animating-87472a51/south/frame_000.png",
+              "states/Chibi_pixel_art_robot_analyst_with_four_arms._Bipe/animations/animating-87472a51/south/frame_001.png",
+              "states/Chibi_pixel_art_robot_analyst_with_four_arms._Bipe/animations/animating-87472a51/south/frame_002.png",
+              "states/Chibi_pixel_art_robot_analyst_with_four_arms._Bipe/animations/animating-87472a51/south/frame_003.png"
+            ]
+          },
+          "looking_around_and_scanning-5d216bb2": {
+            "south": [
+              "states/Chibi_pixel_art_robot_analyst_with_four_arms._Bipe/animations/looking_around_and_scanning-5d216bb2/south/frame_000.png",
+              "states/Chibi_pixel_art_robot_analyst_with_four_arms._Bipe/animations/looking_around_and_scanning-5d216bb2/south/frame_001.png",
+              "states/Chibi_pixel_art_robot_analyst_with_four_arms._Bipe/animations/looking_around_and_scanning-5d216bb2/south/frame_002.png",
+              "states/Chibi_pixel_art_robot_analyst_with_four_arms._Bipe/animations/looking_around_and_scanning-5d216bb2/south/frame_003.png",
+              "states/Chibi_pixel_art_robot_analyst_with_four_arms._Bipe/animations/looking_around_and_scanning-5d216bb2/south/frame_004.png",
+              "states/Chibi_pixel_art_robot_analyst_with_four_arms._Bipe/animations/looking_around_and_scanning-5d216bb2/south/frame_005.png",
+              "states/Chibi_pixel_art_robot_analyst_with_four_arms._Bipe/animations/looking_around_and_scanning-5d216bb2/south/frame_006.png",
+              "states/Chibi_pixel_art_robot_analyst_with_four_arms._Bipe/animations/looking_around_and_scanning-5d216bb2/south/frame_007.png",
+              "states/Chibi_pixel_art_robot_analyst_with_four_arms._Bipe/animations/looking_around_and_scanning-5d216bb2/south/frame_008.png"
+            ]
+          },
+          "cheering_victory_pose-d3620a54": {
+            "south": [
+              "states/Chibi_pixel_art_robot_analyst_with_four_arms._Bipe/animations/cheering_victory_pose-d3620a54/south/frame_000.png",
+              "states/Chibi_pixel_art_robot_analyst_with_four_arms._Bipe/animations/cheering_victory_pose-d3620a54/south/frame_001.png",
+              "states/Chibi_pixel_art_robot_analyst_with_four_arms._Bipe/animations/cheering_victory_pose-d3620a54/south/frame_002.png",
+              "states/Chibi_pixel_art_robot_analyst_with_four_arms._Bipe/animations/cheering_victory_pose-d3620a54/south/frame_003.png",
+              "states/Chibi_pixel_art_robot_analyst_with_four_arms._Bipe/animations/cheering_victory_pose-d3620a54/south/frame_004.png",
+              "states/Chibi_pixel_art_robot_analyst_with_four_arms._Bipe/animations/cheering_victory_pose-d3620a54/south/frame_005.png",
+              "states/Chibi_pixel_art_robot_analyst_with_four_arms._Bipe/animations/cheering_victory_pose-d3620a54/south/frame_006.png",
+              "states/Chibi_pixel_art_robot_analyst_with_four_arms._Bipe/animations/cheering_victory_pose-d3620a54/south/frame_007.png",
+              "states/Chibi_pixel_art_robot_analyst_with_four_arms._Bipe/animations/cheering_victory_pose-d3620a54/south/frame_008.png"
+            ]
+          },
+          "getting_hit_and_staggering-804277ac": {
+            "south": [
+              "states/Chibi_pixel_art_robot_analyst_with_four_arms._Bipe/animations/getting_hit_and_staggering-804277ac/south/frame_000.png",
+              "states/Chibi_pixel_art_robot_analyst_with_four_arms._Bipe/animations/getting_hit_and_staggering-804277ac/south/frame_001.png",
+              "states/Chibi_pixel_art_robot_analyst_with_four_arms._Bipe/animations/getting_hit_and_staggering-804277ac/south/frame_002.png",
+              "states/Chibi_pixel_art_robot_analyst_with_four_arms._Bipe/animations/getting_hit_and_staggering-804277ac/south/frame_003.png",
+              "states/Chibi_pixel_art_robot_analyst_with_four_arms._Bipe/animations/getting_hit_and_staggering-804277ac/south/frame_004.png",
+              "states/Chibi_pixel_art_robot_analyst_with_four_arms._Bipe/animations/getting_hit_and_staggering-804277ac/south/frame_005.png",
+              "states/Chibi_pixel_art_robot_analyst_with_four_arms._Bipe/animations/getting_hit_and_staggering-804277ac/south/frame_006.png",
+              "states/Chibi_pixel_art_robot_analyst_with_four_arms._Bipe/animations/getting_hit_and_staggering-804277ac/south/frame_007.png",
+              "states/Chibi_pixel_art_robot_analyst_with_four_arms._Bipe/animations/getting_hit_and_staggering-804277ac/south/frame_008.png"
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "export_version": "3.0",
+  "export_date": "2026-05-16T13:52:54.407528"
+}

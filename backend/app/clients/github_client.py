@@ -26,7 +26,8 @@ class GitHubClient:
     """
     
     def __init__(self, token: str | None = None):
-        self.token = token or os.getenv("GITHUB_TOKEN")
+        from app.config import settings
+        self.token = token or settings.github_token or os.getenv("GITHUB_TOKEN")
         self.base_url = "https://api.github.com"
         self.timeout = 30.0  # 30 seconds timeout
         

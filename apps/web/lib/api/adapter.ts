@@ -101,16 +101,25 @@ export function scaleHP(backendHP: number, frontendMaxHP: number = 220): number 
 }
 
 /**
+ * Parse "owner/repo" from a GitHub PR URL, or return a fallback.
+ */
+function parseRepo(githubUrl?: string): string {
+  if (!githubUrl) return "fixture";
+  const match = githubUrl.match(/github\.com\/([^/]+\/[^/]+)/);
+  return match ? match[1] : "unknown/repo";
+}
+
+/**
  * Full adapter: backend EncounterResult → frontend-compatible data.
  */
-export function adaptEncounterResult(backend: BackendEncounterResult) {
+export function adaptEncounterResult(backend: BackendEncounterResult, githubUrl?: string) {
   const frontendMaxHP = 220;
   const pr_hp_end = scaleHP(backend.remaining_hp, frontendMaxHP);
   const pr_hp_start = pr_hp_end + backend.total_damage;
 
   return {
     pr_meta: {
-      repo: "unknown/repo", // backend doesn't send repo in EncounterResult
+      repo: parseRepo(githubUrl),
       pr_number: backend.pr_number,
       title: backend.pr_title,
       diff_stats: {

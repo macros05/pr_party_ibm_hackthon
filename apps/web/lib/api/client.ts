@@ -71,7 +71,7 @@ export async function fetchEncounter(
   }
 
   const backendResult: BackendEncounterResult = await response.json();
-  return adaptEncounterResult(backendResult);
+  return adaptEncounterResult(backendResult, isGitHubUrl ? fixtureOrUrl : undefined);
 }
 
 /**

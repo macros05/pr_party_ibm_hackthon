@@ -15,84 +15,81 @@ def test_finding_raw_model():
     """Test FindingRaw model validation."""
     finding = FindingRaw(
         id="f1",
-        type="security",
         severity="critical",
         title="SQL Injection vulnerability",
         description="User input not sanitized",
+        damage=85,
+        damage_type="crit_hit",
         file_path="src/db.ts",
         line_start=42,
         line_end=45,
-        code_snippet="const query = `SELECT * FROM users WHERE id = ${userId}`",
-        suggestion="Use parameterized queries"
+        code_snippet="const query = `SELECT * FROM users WHERE id = ${userId}`"
     )
     
     assert finding.id == "f1"
     assert finding.severity == "critical"
     assert finding.line_start == 42
+    assert finding.damage == 85
+    assert finding.damage_type == "crit_hit"
 
 
 def test_finding_validated_model():
-    """Test FindingValidated model with noise_filtered."""
+    """Test FindingValidated model with validation_notes."""
     finding = FindingValidated(
         id="f1",
-        type="security",
         severity="critical",
         title="SQL Injection vulnerability",
         description="User input not sanitized",
+        damage=85,
+        damage_type="crit_hit",
         file_path="src/db.ts",
         line_start=42,
         line_end=45,
         code_snippet="const query = `SELECT * FROM users WHERE id = ${userId}`",
-        suggestion="Use parameterized queries",
-        noise_filtered=False,
-        validator_reasoning="Legitimate security issue"
+        validation_notes="Legitimate security issue - confirmed SQL injection risk"
     )
     
-    assert finding.noise_filtered is False
-    assert finding.validator_reasoning is not None
+    assert finding.validation_notes is not None
+    assert "Legitimate security issue" in finding.validation_notes
 
 
 def test_finding_complete_model():
     """Test complete Finding model with character assignment."""
     finding = Finding(
         id="f1",
-        type="security",
         severity="critical",
         title="SQL Injection vulnerability",
         description="User input not sanitized",
+        damage=85,
+        damage_type="crit_hit",
         file_path="src/db.ts",
         line_start=42,
         line_end=45,
         code_snippet="const query = `SELECT * FROM users WHERE id = ${userId}`",
-        suggestion="Use parameterized queries",
-        noise_filtered=False,
-        validator_reasoning="Legitimate security issue",
         character_id="aegis",
-        character_name="Aegis",
-        damage=85,
-        damage_type="crit_hit",
-        voiced_message="⚔️ CRITICAL BREACH DETECTED! This SQL injection..."
+        character_dialogue="⚔️ CRITICAL BREACH DETECTED! This SQL injection leaves your database wide open to attackers!"
     )
     
     assert finding.character_id == "aegis"
     assert finding.damage == 85
     assert finding.damage_type == "crit_hit"
+    assert "CRITICAL BREACH" in finding.character_dialogue
 
 
 def test_character_dialogue_model():
     """Test CharacterDialogue model."""
     dialogue = CharacterDialogue(
-        character_id="aegis",
-        character_name="Aegis",
-        target_character_id="schema",
-        target_character_name="Schema",
-        message="Schema, I found a SQL injection. Can you verify the query structure?",
-        dialogue_type="question"
+        finding_id="f1",
+        character_1="aegis",
+        dialogue_1="Schema, I found a SQL injection. Can you verify the query structure?",
+        character_2="schema",
+        dialogue_2="Indeed, Aegis. This query bypasses all parameterization. The database layer is compromised."
     )
     
-    assert dialogue.character_id == "aegis"
-    assert dialogue.target_character_id == "schema"
-    assert dialogue.dialogue_type == "question"
+    assert dialogue.finding_id == "f1"
+    assert dialogue.character_1 == "aegis"
+    assert dialogue.character_2 == "schema"
+    assert "SQL injection" in dialogue.dialogue_1
 
 
 def test_encounter_result_model():
@@ -104,14 +101,16 @@ def test_encounter_result_model():
         findings=[],
         dialogues=[],
         total_damage=85,
-        hp_remaining=15,
+        remaining_hp=15,
         verdict="blocked",
-        summary="Critical security issues found"
+        analysis_timestamp="2026-05-15T23:54:00Z"
     )
     
     assert result.pr_number == 123
     assert result.total_damage == 85
+    assert result.remaining_hp == 15
     assert result.verdict == "blocked"
+    assert result.analysis_timestamp is not None
 
 
 def test_sse_event_model():
@@ -145,22 +144,17 @@ def test_damage_type_validation():
     for damage_type in valid_types:
         finding = Finding(
             id="f1",
-            type="security",
             severity="critical",
             title="Test",
             description="Test",
+            damage=50,
+            damage_type=damage_type,
             file_path="test.ts",
             line_start=1,
             line_end=1,
             code_snippet="test",
-            suggestion="test",
-            noise_filtered=False,
-            validator_reasoning="test",
             character_id="aegis",
-            character_name="Aegis",
-            damage=50,
-            damage_type=damage_type,
-            voiced_message="test"
+            character_dialogue="test message"
         )
         assert finding.damage_type == damage_type
 
@@ -177,9 +171,9 @@ def test_verdict_validation():
             findings=[],
             dialogues=[],
             total_damage=50,
-            hp_remaining=50,
+            remaining_hp=50,
             verdict=verdict,
-            summary="Test"
+            analysis_timestamp="2026-05-15T23:54:00Z"
         )
         assert result.verdict == verdict
 

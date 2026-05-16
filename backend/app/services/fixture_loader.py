@@ -76,12 +76,20 @@ class FixtureLoader:
             readme_content = readme_path.read_text(encoding="utf-8")
             # Parse metadata from README
             for line in readme_content.split("\n"):
-                if line.startswith("**PR Number:**"):
-                    pr_number = int(line.split(":")[-1].strip())
-                elif line.startswith("**Title:**"):
-                    pr_title = line.split(":", 1)[-1].strip()
-                elif line.startswith("**Author:**"):
-                    pr_author = line.split(":")[-1].strip()
+                if "**PR Number:**" in line:
+                    # Extract number from format like "- **PR Number:** #123"
+                    pr_text = line.split("**PR Number:**")[-1].strip()
+                    # Remove # if present
+                    pr_text = pr_text.lstrip("#").strip()
+                    try:
+                        pr_number = int(pr_text)
+                    except ValueError:
+                        pass
+                elif "**Title:**" in line:
+                    # Extract from format like "- **Title:** "Add feature""
+                    pr_title = line.split("**Title:**")[-1].strip().strip('"')
+                elif "**Author:**" in line:
+                    pr_author = line.split("**Author:**")[-1].strip()
         
         # Load diff
         diff_path = fixture_dir / "diff.patch"

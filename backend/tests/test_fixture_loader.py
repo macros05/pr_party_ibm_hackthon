@@ -23,8 +23,8 @@ def test_load_pr1_fixture(loader):
     """Test loading PR1 (security critical) fixture."""
     data = loader.load_fixture("pr1")
     
-    assert data["pr_number"] == 1
-    assert data["pr_title"] == "Add user authentication system"
+    assert data["pr_number"] == 123
+    assert data["pr_title"] == "Add avatar upload endpoint"
     assert data["pr_author"] == "junior-dev"
     assert "diff" in data
     assert "package_json" in data
@@ -36,8 +36,8 @@ def test_load_pr2_fixture(loader):
     """Test loading PR2 (mixed issues) fixture."""
     data = loader.load_fixture("pr2")
     
-    assert data["pr_number"] == 2
-    assert data["pr_title"] == "Implement user profile page"
+    assert data["pr_number"] == 456
+    assert data["pr_title"] == "Add user search with filters"
     assert data["pr_author"] == "mid-level-dev"
     assert "diff" in data
     assert "package_json" in data
@@ -48,8 +48,8 @@ def test_load_pr3_fixture(loader):
     """Test loading PR3 (clean code) fixture."""
     data = loader.load_fixture("pr3")
     
-    assert data["pr_number"] == 3
-    assert data["pr_title"] == "Refactor authentication middleware"
+    assert data["pr_number"] == 789
+    assert data["pr_title"] == "Add secure password reset with email verification"
     assert data["pr_author"] == "senior-dev"
     assert "diff" in data
     assert "package_json" in data

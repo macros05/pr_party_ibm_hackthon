@@ -9,8 +9,8 @@ sse-starlette==1.8.2
 httpx==0.26.0
 
 # IBM watsonx.ai
-ibm-watsonx-ai==0.2.6
-ibm-cloud-sdk-core==3.19.0
+ibm-watsonx-ai>=0.2.6
+ibm-cloud-sdk-core>=3.20.0
 
 # GitHub API
 PyGithub==2.1.1

@@ -2,6 +2,7 @@
 IBM watsonx.ai client with automatic IAM token refresh.
 Tokens expire after 60 minutes - refresh 5 minutes before expiry.
 """
+import asyncio
 import time
 from datetime import datetime, timedelta
 from typing import Any
@@ -123,7 +124,10 @@ class WatsonxClient:
                 }
             )
             
-            result = model.generate_text(prompt=prompt)
+            loop = asyncio.get_event_loop()
+            result = await loop.run_in_executor(
+                None, lambda: model.generate_text(prompt=prompt)
+            )
             
             elapsed = time.time() - start_time
             

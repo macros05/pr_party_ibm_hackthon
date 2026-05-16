@@ -13,9 +13,6 @@ class Settings(BaseSettings):
     watsonx_project_id: str = "test_project"
     watsonx_url: str = "https://us-south.ml.cloud.ibm.com"
     
-    # IBM Bob Configuration
-    bob_api_key: str = "test_bob_key"
-    bob_api_url: str = "https://api.bob.build"
     
     # GitHub Configuration (optional)
     github_token: str | None = None
@@ -25,7 +22,8 @@ class Settings(BaseSettings):
     cors_origins: str = "http://localhost:3000,http://localhost:3001"
     
     # Granite Model Configuration
-    granite_model_id: str = "ibm/granite-3-3-8b-instruct"
+    # Using granite-8b-code-instruct (supported in watsonx.ai environment)
+    granite_model_id: str = "ibm/granite-8b-code-instruct"
     granite_max_tokens: int = 2048
     granite_temperature: float = 0.7
     

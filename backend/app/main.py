@@ -4,6 +4,7 @@ Provides SSE streaming endpoint for real-time PR analysis.
 """
 import asyncio
 import json
+from datetime import datetime
 from typing import AsyncGenerator
 
 from fastapi import FastAPI, HTTPException
@@ -14,6 +15,7 @@ from sse_starlette.sse import EventSourceResponse
 from app.config import settings
 from app.logging_config import configure_logging, get_logger
 from app.models import AnalyzeRequest, EncounterResult, SSEEvent
+from app.clients.github_client import get_github_client
 from app.services.fixture_loader import get_fixture_loader
 from app.services.orchestrator import get_orchestrator
 
@@ -101,11 +103,52 @@ async def analyze_pr_stream(request: AnalyzeRequest) -> AsyncGenerator[str, None
             package_json = fixture_data["package_json"]
             context_files = fixture_data["context_files"]
         else:
-            # TODO: Load from GitHub API
-            raise HTTPException(
-                status_code=501,
-                detail="GitHub API integration not yet implemented. Use 'use_fixture' parameter."
-            )
+            # Load from GitHub API
+            github = get_github_client()
+            
+            try:
+                # Parse GitHub URL if provided
+                if request.github_url:
+                    owner, repo, pr_num = github.parse_pr_url(request.github_url)
+                    request.repo_owner = owner
+                    request.repo_name = repo
+                    request.pr_number = pr_num
+                
+                # Validate required fields
+                if not request.repo_owner or not request.repo_name or not request.pr_number:
+                    raise HTTPException(
+                        status_code=400,
+                        detail="Either 'github_url' or 'repo_owner', 'repo_name', and 'pr_number' must be provided"
+                    )
+                
+                # Fetch PR data from GitHub
+                github_data = await github.fetch_pr(
+                    owner=request.repo_owner,
+                    repo=request.repo_name,
+                    pr_number=request.pr_number
+                )
+                
+                pr_number = github_data["pr_number"]
+                pr_title = github_data["pr_title"]
+                pr_author = github_data["pr_author"]
+                diff = github_data["diff"]
+                package_json = github_data["package_json"]
+                context_files = github_data["context_files"]
+                
+            except ValueError as e:
+                # Invalid URL format
+                logger.error("invalid_github_url", error=str(e))
+                raise HTTPException(
+                    status_code=400,
+                    detail=str(e)
+                )
+            except Exception as e:
+                # GitHub API error
+                logger.error("github_fetch_error", error=str(e))
+                raise HTTPException(
+                    status_code=500,
+                    detail=f"Failed to fetch PR from GitHub: {str(e)}"
+                )
         
         # Run analysis
         orchestrator = get_orchestrator()
@@ -182,6 +225,8 @@ async def analyze_pr_sync(request: AnalyzeRequest) -> EncounterResult:
     """
     Analyze a PR and return complete result (non-streaming).
     Useful for testing and debugging.
+    
+    When using fixtures, loads pre-generated findings for fast demo.
     """
     try:
         logger.info(
@@ -198,14 +243,148 @@ async def analyze_pr_sync(request: AnalyzeRequest) -> EncounterResult:
             pr_number = fixture_data["pr_number"]
             pr_title = fixture_data["pr_title"]
             pr_author = fixture_data["pr_author"]
+            
+            # For fixtures, use pre-generated findings (fast demo mode)
+            if fixture_data.get("expected_findings_validated"):
+                logger.info("using_pregenerated_findings", fixture=request.use_fixture)
+                
+                from app.models import FindingValidated
+                from app.services.classifier import get_classifier
+                from app.services.voice_rewriter import get_voice_rewriter
+                
+                # Load expected findings
+                expected_raw = fixture_data["expected_findings_raw"]["findings"]
+                expected_validated_data = fixture_data["expected_findings_validated"]["findings"]
+                
+                # Convert to FindingValidated objects
+                # Map fixture JSON fields to model fields
+                findings_validated = []
+                for i, validated_data in enumerate(expected_validated_data):
+                    raw_finding = expected_raw[i]
+                    
+                    # Map severity to damage
+                    severity = raw_finding["severity"]
+                    if severity == "critical":
+                        damage = 90
+                        damage_type = "crit_hit"
+                    elif severity == "high":
+                        damage = 60
+                        damage_type = "hit"
+                    elif severity == "medium":
+                        damage = 30
+                        damage_type = "graze"
+                    else:  # low
+                        damage = 10
+                        damage_type = "whisper"
+                    
+                    finding = FindingValidated(
+                        id=raw_finding["id"],
+                        title=raw_finding["title"],
+                        description=raw_finding["explanation"],  # explanation → description
+                        severity=severity,
+                        damage=damage,
+                        damage_type=damage_type,
+                        file_path=raw_finding["file"],  # file → file_path
+                        line_start=raw_finding["line_start"],
+                        line_end=raw_finding["line_end"],
+                        code_snippet=raw_finding["code_snippet"],
+                        validation_notes=validated_data["validation_notes"]
+                    )
+                    findings_validated.append(finding)
+                
+                # Classify and voice rewrite
+                classifier = get_classifier()
+                classified_findings = classifier.classify_findings(findings_validated)
+                
+                voice_rewriter = get_voice_rewriter()
+                voiced_findings = await voice_rewriter.rewrite_findings(classified_findings)
+                
+                # Calculate damage and verdict
+                total_damage = sum(f.damage for f in voiced_findings)
+                remaining_hp = max(0, 100 - total_damage)
+                
+                if total_damage >= 80:
+                    verdict = "blocked"
+                elif total_damage >= 50:
+                    verdict = "changes_required"
+                else:
+                    verdict = "approved"
+                
+                # Generate dialogues
+                from app.services.orchestrator import PRAnalysisOrchestrator
+                orchestrator = PRAnalysisOrchestrator()
+                dialogues = orchestrator._generate_dialogues(voiced_findings)
+                
+                result = EncounterResult(
+                    pr_number=pr_number,
+                    pr_title=pr_title,
+                    pr_author=pr_author,
+                    verdict=verdict,
+                    total_damage=total_damage,
+                    remaining_hp=remaining_hp,
+                    findings=voiced_findings,
+                    dialogues=dialogues,
+                    analysis_timestamp=datetime.utcnow().isoformat()
+                )
+                
+                logger.info(
+                    "analysis_sync_complete",
+                    pr_number=pr_number,
+                    verdict=verdict,
+                    findings_count=len(voiced_findings)
+                )
+                
+                return result
             diff = fixture_data["diff"]
             package_json = fixture_data["package_json"]
             context_files = fixture_data["context_files"]
         else:
-            raise HTTPException(
-                status_code=501,
-                detail="GitHub API integration not yet implemented. Use 'use_fixture' parameter."
-            )
+            # Load from GitHub API
+            github = get_github_client()
+            
+            try:
+                # Parse GitHub URL if provided
+                if request.github_url:
+                    owner, repo, pr_num = github.parse_pr_url(request.github_url)
+                    request.repo_owner = owner
+                    request.repo_name = repo
+                    request.pr_number = pr_num
+                
+                # Validate required fields
+                if not request.repo_owner or not request.repo_name or not request.pr_number:
+                    raise HTTPException(
+                        status_code=400,
+                        detail="Either 'github_url' or 'repo_owner', 'repo_name', and 'pr_number' must be provided"
+                    )
+                
+                # Fetch PR data from GitHub
+                github_data = await github.fetch_pr(
+                    owner=request.repo_owner,
+                    repo=request.repo_name,
+                    pr_number=request.pr_number
+                )
+                
+                pr_number = github_data["pr_number"]
+                pr_title = github_data["pr_title"]
+                pr_author = github_data["pr_author"]
+                diff = github_data["diff"]
+                package_json = github_data["package_json"]
+                context_files = github_data["context_files"]
+                
+            except ValueError as e:
+                # Invalid URL format
+                logger.error("invalid_github_url", error=str(e))
+                raise HTTPException(
+                    status_code=400,
+                    detail=str(e)
+                )
+            except Exception as e:
+                # GitHub API error
+                logger.error("github_fetch_error", error=str(e))
+                raise HTTPException(
+                    status_code=500,
+                    detail=f"Failed to fetch PR from GitHub: {str(e)}"
+                )
         
         # Run analysis
         orchestrator = get_orchestrator()

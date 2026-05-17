@@ -12,3 +12,30 @@
 
 # logs
 *.log
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Virtual environments (any subdir)
+venv/
+.venv/
+env/
+ENV/
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+.vercel/
+*.tsbuildinfo
+
+# Builds / caches
+build/
+dist/
+.cache/

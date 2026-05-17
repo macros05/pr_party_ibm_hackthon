@@ -68,7 +68,6 @@ Scanned tracked files (`git ls-files`) for the patterns:
 
 **Result:** zero matches outside of:
 - `.env.example` files — placeholders only (`your_watsonx_api_key_here`)
-- `SETUP_GITHUB_TOKEN.md` — example token (`ghp_1234567890abcdefghijklmnopqrstuvwxyz`) clearly labeled as illustration
 - `config.py` — defaults `"test_key"` / `"test_project"` for unit testing
 
 All credential reads go through `pydantic-settings` ([`backend/app/config.py`](backend/app/config.py)). No code path embeds a literal secret.
@@ -85,17 +84,9 @@ Both [`.gitignore`](.gitignore) (repo root) and [`backend/.gitignore`](backend/.
 
 Verified `backend/.env` resolves to `backend/.gitignore:29` via `git check-ignore -v`.
 
-### 🟡 4. Example token in `SETUP_GITHUB_TOKEN.md` could trigger secret scanners
+### 🟢 4. Setup walkthrough deleted; no example PAT in tracked content
 
-`SETUP_GITHUB_TOKEN.md:71` contains:
-
-```
-GITHUB_TOKEN=ghp_1234567890abcdefghijklmnopqrstuvwxyz
-```
-
-This is **clearly a fake** (sequential `0123…wxyz`), but GitHub's own secret scanner pattern-matches `ghp_[A-Za-z0-9]{36}` and may flag it. It will not be revokable (it's not real), but it can clutter your security alerts.
-
-**Recommended fix:** change it to `ghp_REPLACE_WITH_YOUR_TOKEN` or `ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx` (already used on line 48 of the same file).
+The standalone `SETUP_GITHUB_TOKEN.md` (which previously embedded a fake `ghp_…` placeholder that pattern-matched GitHub's secret scanner) has been removed. The minimal instructions live in [`README.md`](README.md#2-configure-environment) and [`.env.example`](.env.example) without a scanner-shaped token literal.
 
 ### 🟡 5. `backend/.env.example` and root `.env.example` should stay in sync
 
@@ -194,7 +185,7 @@ In strict order — earlier steps close exposure, later steps clean the evidence
 - [ ] **Step 8 — Smoke-test the backend.** Re-run `uvicorn app.main:app --reload`. Hit `curl -X POST http://localhost:8000/analyze/sync -H 'Content-Type: application/json' -d '{"use_fixture":"pr1","pr_number":1,"repo_owner":"d","repo_name":"d"}'`. Confirm 200 + verdict.
 - [ ] **Step 9 — Smoke-test the regen scripts** (only if you plan to re-run them before the demo). `python scripts/pixellab/client.py --help`, `python scripts/gemini/generate_island.py --help` should not raise `RuntimeError: ... missing`.
 - [ ] **Step 10 — (Optional) Rewrite history.** `git filter-repo` per §8 to strip the watsonx key string from commit `8a65880`. Skip unless secret scanners are bothering you.
-- [ ] **Step 11 — Tidy.** Fix the placeholder in `SETUP_GITHUB_TOKEN.md:71` (see §4). Confirm `git status` clean. Confirm `git log --all -- backend/.env apps/web/.env.local` empty (it is — neither env file was ever tracked, only Bob's pasted copy of `backend/.env` inside session markdowns).
+- [ ] **Step 11 — Tidy.** Confirm `git status` clean. Confirm `git log --all -- backend/.env apps/web/.env.local` empty (it is — neither env file was ever tracked, only Bob's pasted copy of `backend/.env` inside session markdowns).
 - [ ] **Step 12 — Final review of this file.** Decide whether to keep `SECURITY_AUDIT.md` in the repo (currently safe — all real secrets are `<REDACTED>` in the visible text) or delete it once the cleanup is done. Either is fine.
 
 > ⚠️ **You can delete this file entirely after rotation.** It exists to drive the rotation, not as permanent documentation. Once the old tokens are dead, the only thing left of value here is the methodology, which is duplicated in [PR_PARTY_SPEC.md §10](PR_PARTY_SPEC.md).

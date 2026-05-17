@@ -19,12 +19,16 @@ const WINGS_DOWN = "M 0 0 Q 6 6 12 0 Q 18 6 24 0";
 const WINGS_UP = "M 0 4 Q 6 -4 12 4 Q 18 -4 24 4";
 
 /**
- * 1–3 tiny silhouette birds cross the sky right→left in a slow,
- * descending arc, with their two-frame flap. They appear at irregular
- * intervals so the sky doesn't feel scripted.
+ * 4–5 tiny silhouette birds cross the sky right→left in a slow,
+ * descending arc, with their two-frame flap. A starter flock spawns
+ * shortly after mount with staggered offsets; subsequent birds replace
+ * them at shorter, irregular intervals so the sky always has several
+ * crossing at once but never feels scripted.
  *
  * Sits between cloud back and cloud mid layers (z=2).
  */
+const TARGET_FLOCK = 5;
+
 export function SkyBirds() {
   const reduced = usePrefersReducedMotion();
   const [birds, setBirds] = React.useState<Bird[]>([]);
@@ -33,35 +37,50 @@ export function SkyBirds() {
   React.useEffect(() => {
     if (reduced) return;
     let cancelled = false;
+    const timeouts: number[] = [];
 
-    function spawn() {
+    function spawnOne() {
       if (cancelled) return;
-      const startY = 8 + Math.random() * 22; // top 8-30vh
-      const endY = startY + 4 + Math.random() * 8; // gentle descent
+      const startY = 6 + Math.random() * 32; // top 6-38vh
+      const endY = startY + 4 + Math.random() * 12; // gentle descent
       const next: Bird = {
         id: ++idRef.current,
         startY,
         endY,
-        size: 12 + Math.random() * 8,
-        duration: 28 + Math.random() * 6,
+        size: 13 + Math.random() * 12,
+        duration: 24 + Math.random() * 12,
         delay: 0,
       };
       setBirds((prev) => [...prev, next]);
-      // remove after it crosses
-      window.setTimeout(() => {
-        if (cancelled) return;
-        setBirds((prev) => prev.filter((b) => b.id !== next.id));
-      }, (next.duration + 1) * 1000);
-
-      const nextDelay = 25_000 + Math.random() * 20_000;
-      window.setTimeout(spawn, nextDelay);
+      timeouts.push(
+        window.setTimeout(() => {
+          if (cancelled) return;
+          setBirds((prev) => prev.filter((b) => b.id !== next.id));
+        }, (next.duration + 1) * 1000),
+      );
     }
 
-    // First bird shortly after mount.
-    const t = window.setTimeout(spawn, 4_000 + Math.random() * 4_000);
+    // Seed a starter flock — TARGET_FLOCK birds with staggered entries
+    // so they don't all align at the right edge on frame zero.
+    for (let i = 0; i < TARGET_FLOCK; i++) {
+      timeouts.push(
+        window.setTimeout(spawnOne, 200 + i * (2_200 + Math.random() * 1_800)),
+      );
+    }
+
+    // Then keep topping up: every 4-9s spawn another, the array stays
+    // around the target size because old ones expire as they cross.
+    function loop() {
+      if (cancelled) return;
+      spawnOne();
+      const nextDelay = 4_000 + Math.random() * 5_000;
+      timeouts.push(window.setTimeout(loop, nextDelay));
+    }
+    timeouts.push(window.setTimeout(loop, TARGET_FLOCK * 2_400 + 2_000));
+
     return () => {
       cancelled = true;
-      window.clearTimeout(t);
+      for (const t of timeouts) window.clearTimeout(t);
     };
   }, [reduced]);
 

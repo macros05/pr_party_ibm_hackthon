@@ -3,169 +3,157 @@
 import * as React from "react";
 import type { CharacterId, Finding } from "@/types/encounter";
 import type { IslandState } from "@/lib/demo/character-analysis";
-import { fetchEncounter, checkBackendHealth } from "./client";
+import {
+  subscribe,
+  clearAll,
+  type CharacterSlot,
+  type EncounterStoreState,
+} from "./encounter-store";
+import { checkBackendHealth } from "./client";
 
-// Module-level cache: keyed by fixture/url, shared across all island navigations
-const encounterCache = new Map<string, ReturnType<typeof fetchEncounter> extends Promise<infer T> ? T : never>();
-let backendHealthCache: boolean | null = null;
+/**
+ * Per-island hook backed by the shared streaming encounter store.
+ *
+ * The previous version made each island do its own /analyze/sync call and
+ * wait for the entire pipeline before showing anything — that's what made
+ * a real GitHub URL spin forever. Now all six islands share ONE SSE stream
+ * to /analyze/stream, and each island renders its character's findings the
+ * moment that agent's pipeline finishes.
+ */
 
-const CATEGORY_MAP: Record<CharacterId, string> = {
-  aegis: "security",
-  schema: "database",
-  pixel: "ux",
-  atlas: "architecture",
-  echo: "tests",
-  codex: "documentation",
+type Phase = IslandState["phase"];
+
+export interface IslandAnalysisState {
+  phase: Phase;
+  findings: Finding[];
+  prMeta: IslandState["prMeta"];
+  /** True while this character's agent is still running. */
+  isAnalyzing: boolean;
+  /** Per-character error from the backend, if this agent failed. */
+  characterError: string | null;
+  /** Top-level error (couldn't even start the stream). */
+  globalError: string | null;
+}
+
+const DEFAULT_PR_META: IslandState["prMeta"] = {
+  repo: "loading…",
+  pr_number: 0,
+  title: "Convening the council…",
+  diff_stats: { files_changed: 0, additions: 0, deletions: 0 },
 };
+
+function slotPhase(slot: CharacterSlot, storePhase: EncounterStoreState["phase"]): Phase {
+  // Map store phases onto the IslandState lifecycle the existing UI knows.
+  if (slot.status === "done" || slot.status === "error") return "done";
+  if (storePhase === "connecting") return "scanning";
+  // working — show "analyzing" so the panel pulls out of the
+  // initial scan animation and into the active scan state.
+  return "analyzing";
+}
+
+function buildState(
+  storeState: EncounterStoreState,
+  id: CharacterId,
+): IslandAnalysisState {
+  const slot = storeState.characters[id];
+  return {
+    phase: slotPhase(slot, storeState.phase),
+    findings: slot.findings,
+    prMeta: storeState.prMeta ?? DEFAULT_PR_META,
+    isAnalyzing: slot.status === "working" || storeState.phase === "connecting",
+    characterError: slot.status === "error" ? slot.error ?? "Unknown error" : null,
+    globalError: storeState.error,
+  };
+}
+
+let backendHealthCache: boolean | null = null;
 
 export function useIslandAnalysisRemote(
   id: CharacterId,
-  fixture: string = "pr1"
-) {
-  const [state, setState] = React.useState<IslandState>({
+  source: string,
+): { state: IslandAnalysisState; backendAvailable: boolean | null } {
+  const [state, setState] = React.useState<IslandAnalysisState>(() => ({
     phase: "scanning",
     findings: [],
-    prMeta: {
-      repo: "loading...",
-      pr_number: 0,
-      title: "Loading...",
-      diff_stats: { files_changed: 0, additions: 0, deletions: 0 },
-    },
-  });
-
+    prMeta: DEFAULT_PR_META,
+    isAnalyzing: true,
+    characterError: null,
+    globalError: null,
+  }));
   const [backendAvailable, setBackendAvailable] = React.useState<boolean | null>(
-    backendHealthCache
-  );
-  const timeoutsRef = React.useRef<number[]>([]);
-
-  const clear = React.useCallback(() => {
-    for (const t of timeoutsRef.current) window.clearTimeout(t);
-    timeoutsRef.current = [];
-  }, []);
-
-  const applyResult = React.useCallback(
-    (result: (typeof encounterCache extends Map<string, infer V> ? V : never), cancelled: { v: boolean }) => {
-      const allFindings = result.findings as Finding[];
-      const characterFindings = allFindings.filter(
-        (f) => f.category === CATEGORY_MAP[id]
-      );
-
-      setState((s) => ({ ...s, prMeta: result.pr_meta }));
-
-      const SPACING_MS = 2400;
-      characterFindings.forEach((finding, i) => {
-        const t = window.setTimeout(() => {
-          if (cancelled.v) return;
-          setState((s) => ({ ...s, findings: [...s.findings, finding] }));
-        }, 1800 + i * SPACING_MS);
-        timeoutsRef.current.push(t);
-      });
-
-      const doneT = window.setTimeout(() => {
-        if (cancelled.v) return;
-        setState((s) => ({ ...s, phase: "done" }));
-      }, 1800 + characterFindings.length * SPACING_MS + 1200);
-      timeoutsRef.current.push(doneT);
-    },
-    [id]
+    backendHealthCache,
   );
 
   React.useEffect(() => {
-    clear();
-    setState({
-      phase: "scanning",
-      findings: [],
-      prMeta: {
-        repo: "loading...",
-        pr_number: 0,
-        title: "Loading...",
-        diff_stats: { files_changed: 0, additions: 0, deletions: 0 },
-      },
-    });
+    let cancelled = false;
 
-    const cancelled = { v: false };
-
-    const run = async () => {
-      // Health check (cached)
+    // Health check (cached) — if backend is down, fall back to demo.
+    const runHealth = async () => {
       if (backendHealthCache === null) {
         backendHealthCache = await checkBackendHealth();
       }
-      if (cancelled.v) return;
-
+      if (cancelled) return;
       setBackendAvailable(backendHealthCache);
+      if (!backendHealthCache) return;
 
-      if (!backendHealthCache) {
-        console.warn(
-          "Backend not available, falling back to demo data. Start backend with: cd backend && uvicorn app.main:app --reload"
-        );
-        return;
-      }
+      const sub = subscribe(source, (storeState) => {
+        if (cancelled) return;
+        setState(buildState(storeState, id));
+      });
 
-      // Scanning phase
-      const scanT = window.setTimeout(() => {
-        if (cancelled.v) return;
-        setState((s) => ({ ...s, phase: "analyzing" }));
-      }, 1600);
-      timeoutsRef.current.push(scanT);
-
-      try {
-        // Use cached result if available, otherwise fetch
-        let result = encounterCache.get(fixture);
-        if (!result) {
-          result = await fetchEncounter(fixture);
-          encounterCache.set(fixture, result);
-        }
-        if (cancelled.v) return;
-        applyResult(result, cancelled);
-      } catch (error) {
-        console.error("Failed to fetch encounter from backend:", error);
-        backendHealthCache = false;
-        setBackendAvailable(false);
-      }
+      cancelledCleanup = () => sub.unsubscribe();
     };
 
-    run();
+    let cancelledCleanup: (() => void) | null = null;
+    runHealth();
 
     return () => {
-      cancelled.v = true;
-      clear();
+      cancelled = true;
+      if (cancelledCleanup) cancelledCleanup();
     };
-  }, [id, fixture, clear, applyResult]);
+  }, [id, source]);
 
   return { state, backendAvailable };
 }
 
 /**
- * Clear the encounter cache (e.g. when the user submits a new PR URL).
+ * Clear the encounter store (e.g. when the user submits a new PR URL).
  */
 export function clearEncounterCache() {
-  encounterCache.clear();
+  clearAll();
   backendHealthCache = null;
 }
 
 export function useIslandAnalysisWithFallback(
   id: CharacterId,
-  fixture: string = "pr1"
+  source: string,
 ) {
   const { state: remoteState, backendAvailable } = useIslandAnalysisRemote(
     id,
-    fixture
+    source,
   );
 
-  const [demoState, setDemoState] = React.useState<IslandState | null>(null);
+  const [demoState, setDemoState] = React.useState<IslandAnalysisState | null>(
+    null,
+  );
 
   React.useEffect(() => {
     if (backendAvailable === false && !demoState) {
-      import("@/lib/demo/character-analysis").then(({ getCharacterFindings }) => {
-        import("@/lib/demo/encounter").then(({ DEMO_PAYLOAD }) => {
-          const findings = getCharacterFindings(id);
-          setDemoState({
-            phase: "done",
-            findings,
-            prMeta: DEMO_PAYLOAD.pr_meta,
+      import("@/lib/demo/character-analysis").then(
+        ({ getCharacterFindings }) => {
+          import("@/lib/demo/encounter").then(({ DEMO_PAYLOAD }) => {
+            const findings = getCharacterFindings(id);
+            setDemoState({
+              phase: "done",
+              findings,
+              prMeta: DEMO_PAYLOAD.pr_meta,
+              isAnalyzing: false,
+              characterError: null,
+              globalError: null,
+            });
           });
-        });
-      });
+        },
+      );
     }
   }, [backendAvailable, id, demoState]);
 

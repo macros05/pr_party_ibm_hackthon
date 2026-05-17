@@ -2,6 +2,8 @@
 Voice rewriter service - uses Granite to add character personality to findings.
 Each character has a unique voice and perspective.
 """
+import re
+
 from app.clients.watsonx_client import get_watsonx_client
 from app.config import settings
 from app.logging_config import get_logger
@@ -64,16 +66,16 @@ class VoiceRewriter:
 
 Personality: {character['personality']}
 
-Example of your voice: "{character['example']}"
+Reference style (do not repeat this sentence): {character['example']}
 
-Your task: Rewrite the following technical finding in your unique voice. Keep it concise (2-3 sentences max). Maintain the technical accuracy but add your personality.
+Your task: Rewrite the following technical finding in your unique voice. Keep it concise (2-3 sentences max). Maintain the technical accuracy but add your personality. Respond with ONLY the rewritten comment as a single short paragraph — no quotation marks around it, no meta-commentary, no further examples, no offers to rewrite more findings, no questions, no follow-up.
 
 Technical Finding:
 Title: {finding.title}
 Description: {finding.description}
 
 Your voiced comment (2-3 sentences):"""
-        
+
         return prompt
     
     async def rewrite_finding(
@@ -104,25 +106,62 @@ Your voiced comment (2-3 sentences):"""
                 model_id=settings.granite_model_id,
                 prompt=prompt,
                 max_tokens=150,
-                temperature=0.8
+                temperature=0.8,
+                # Primary defense: stop generation at the API level before the
+                # model produces meta-commentary. Watsonx allows up to 6 stops.
+                stop_sequences=[
+                    "\n\n",
+                    "\nTitle:",
+                    "\nExample",
+                    "\nHere",
+                    "Example sounds",
+                    "Your response should",
+                ],
             )
 
             # Strip whitespace and surrounding quotes
             dialogue = dialogue.strip().strip('"').strip("'").strip()
 
-            # Truncate at hallucination markers — the model tends to continue
-            # the conversation with "Your turn!" or new finding prompts
-            stop_markers = [
+            # Closing-quote continuation: the model often wraps its answer in
+            # quotes and keeps writing on the SAME line — e.g.
+            #   ...invasores." Example sounds good. Here are a few more...
+            # Cut at the first sentence-ending punctuation followed by a
+            # closing quote and a capitalized continuation, keeping the punct.
+            quote_cut = re.search(r'([.!?])"\s+[A-Z]', dialogue)
+            if quote_cut and quote_cut.start() >= 20:
+                dialogue = dialogue[: quote_cut.start() + 1].strip()
+
+            # Phrase-level continuations the model emits inline without a
+            # newline. Keep the sentence punctuation that precedes the marker
+            # when present.
+            inline_phrases = [
+                "Example sounds", "Example was",
+                "Your response should",
+                "Here's another", "Here is another",
+                "Here's a new", "Here is a new",
+                "Here are a few", "Here are more",
+                "Here is the proposed", "Here is the rephrased",
                 "Your turn", "your turn",
-                "Here is a new", "Here is another",
-                "\nTitle:", "\nDescription:",
                 "How was that", "Was that",
-                "\nI,",  # model narrating itself: "I, Aegis..."
             ]
-            for marker in stop_markers:
+            for phrase in inline_phrases:
+                idx = dialogue.find(phrase)
+                if idx > 0:
+                    head = dialogue[:idx].rstrip()
+                    dialogue = head.rstrip('"').rstrip("'").rstrip()
+                    break
+
+            # Newline-prefixed markers (model starts a new line with meta).
+            newline_markers = [
+                "\nTitle:", "\nDescription:",
+                "\nExample", "\nYour", "\nHere", "\nNow",
+                "\nI,",  # model narrating itself: "I, Aegis..."
+                "\n\n",
+            ]
+            for marker in newline_markers:
                 idx = dialogue.find(marker)
                 if idx > 0:
-                    dialogue = dialogue[:idx].strip().rstrip('"').strip()
+                    dialogue = dialogue[:idx].rstrip().rstrip('"').rstrip("'").rstrip()
                     break
 
             # Ensure it doesn't end mid-sentence — keep up to the last sentence-ending punctuation

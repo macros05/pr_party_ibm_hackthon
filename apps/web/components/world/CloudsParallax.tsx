@@ -122,12 +122,13 @@ function CloudLayer({
   return (
     <div
       aria-hidden
-      className="pointer-events-none absolute left-0 right-0 overflow-hidden"
+      className="pointer-events-none absolute left-0 right-0"
       style={{
         top: `${topPct}%`,
         height: `${30 + scale * 18}%`,
         zIndex: z,
         opacity,
+        overflow: "visible",
       }}
     >
       <div
@@ -136,32 +137,61 @@ function CloudLayer({
           width: "100%",
           height: "100%",
           willChange: "transform",
+          overflow: "visible",
         }}
       >
         <div
           style={{
+            // Use flex (not float) so the two strips butt up at exactly
+            // 50%+50% with zero sub-pixel rounding error — without that,
+            // the loop reset (from translate -50% back to 0) shows as a
+            // tiny visible pause/jump where the seam wobbles by a pixel.
             width: "200%",
             height: "100%",
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "stretch",
+            fontSize: 0,
+            lineHeight: 0,
+            backfaceVisibility: "hidden",
+            transform: "translateZ(0)",
             animation: reduced
               ? "none"
               : `pr-party-cloud-drift ${speedSec}s linear infinite`,
             willChange: "transform",
+            overflow: "visible",
           }}
         >
-          <CloudStrip
-            seed={seed}
-            scale={scale}
-            bodyFill={bodyFill}
-            shadowFill={shadowFill}
-            highlightFill={highlightFill}
-          />
-          <CloudStrip
-            seed={seed}
-            scale={scale}
-            bodyFill={bodyFill}
-            shadowFill={shadowFill}
-            highlightFill={highlightFill}
-          />
+          <div
+            style={{
+              flex: "0 0 50%",
+              height: "100%",
+              overflow: "visible",
+            }}
+          >
+            <CloudStrip
+              seed={seed}
+              scale={scale}
+              bodyFill={bodyFill}
+              shadowFill={shadowFill}
+              highlightFill={highlightFill}
+            />
+          </div>
+          <div
+            style={{
+              flex: "0 0 50%",
+              height: "100%",
+              overflow: "visible",
+            }}
+          >
+            <CloudStrip
+              seed={seed}
+              scale={scale}
+              bodyFill={bodyFill}
+              shadowFill={shadowFill}
+              highlightFill={highlightFill}
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -222,11 +252,12 @@ function CloudStrip({
     <svg
       viewBox="0 0 1000 300"
       preserveAspectRatio="none"
+      overflow="visible"
       style={{
-        width: "50%",
+        width: "100%",
         height: "100%",
         display: "block",
-        float: "left",
+        overflow: "visible",
       }}
     >
       {clouds.map((c, i) => {

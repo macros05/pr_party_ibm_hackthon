@@ -7,6 +7,7 @@ import { SpriteAnimator } from "./SpriteAnimator";
 import { ScanOverlay } from "./overlays/ScanOverlay";
 import { VictoryOverlay } from "./overlays/VictoryOverlay";
 import { HitOverlay } from "./overlays/HitOverlay";
+import { WorkingScroll } from "./overlays/WorkingScroll";
 import { travelAnimationFor, type AnimName } from "@/lib/sprites/manifest";
 import { usePrefersReducedMotion } from "@/lib/motion/reduced-motion";
 
@@ -201,6 +202,13 @@ function SpriteRobotImpl({
   const shakeKey = `${phase}-${verdict}-${oneShotPlayed}`;
   const traveling = stage === "travel" && !paused && phase !== "done" && phase !== "idle";
 
+  // The agent is "working" any time it's not done/idle/paused — show a
+  // floating parchment so the user can see at a glance which agents are
+  // still running. Always labelled "Analyzing"; disappears the moment the
+  // verdict lands.
+  const showWorkingScroll =
+    !paused && phase !== "done" && phase !== "idle";
+
   return (
     <motion.div
       className="absolute"
@@ -217,6 +225,17 @@ function SpriteRobotImpl({
       initial={false}
     >
       <ArrivalRipple size={size} accent={accent} />
+
+      {/* Continuous "thinking" halo around the robot the whole time the
+          agent is working — independent of the travel/pause cycle so the
+          glow never disappears mid-analysis. */}
+      {showWorkingScroll && !reduced && (
+        <ThinkingHalo size={size} accent={accent} />
+      )}
+
+      {showWorkingScroll && (
+        <WorkingScroll size={size} accent={accent} />
+      )}
 
       <span
         aria-hidden
@@ -335,4 +354,52 @@ function wait(ms: number) {
   return new Promise<void>((resolve) => {
     window.setTimeout(resolve, ms);
   });
+}
+
+/**
+ * A breathing accent halo behind the robot whenever its agent is actively
+ * working. The pulse is intentionally slow (~2s) — fast pulsing read as
+ * danger/error in playtests. A second concentric ring rotates very slowly
+ * so the effect looks volumetric rather than a flat strobe.
+ */
+function ThinkingHalo({ size, accent }: { size: number; accent: string }) {
+  return (
+    <>
+      <motion.span
+        aria-hidden
+        className="pointer-events-none absolute"
+        style={{
+          left: "50%",
+          top: "50%",
+          width: size * 1.35,
+          height: size * 1.35,
+          marginLeft: -(size * 1.35) / 2,
+          marginTop: -(size * 1.35) / 2,
+          borderRadius: "50%",
+          background: `radial-gradient(closest-side, ${accent}33 0%, ${accent}10 55%, transparent 75%)`,
+          filter: "blur(8px)",
+          mixBlendMode: "screen",
+        }}
+        animate={{ opacity: [0.45, 0.85, 0.45], scale: [0.95, 1.05, 0.95] }}
+        transition={{ duration: 2.0, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.span
+        aria-hidden
+        className="pointer-events-none absolute"
+        style={{
+          left: "50%",
+          top: "50%",
+          width: size * 1.05,
+          height: size * 1.05,
+          marginLeft: -(size * 1.05) / 2,
+          marginTop: -(size * 1.05) / 2,
+          borderRadius: "50%",
+          border: `1px dashed ${accent}66`,
+          opacity: 0.55,
+        }}
+        animate={{ rotate: 360 }}
+        transition={{ duration: 14, repeat: Infinity, ease: "linear" }}
+      />
+    </>
+  );
 }

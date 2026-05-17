@@ -6,6 +6,7 @@ import { CHARACTER_ORDER } from "@/tokens/characters";
 import { useIslandAnalysisWithFallback } from "@/lib/api/use-island-analysis-remote";
 import { FloatingIsland } from "@/components/world/FloatingIsland";
 import { IslandNavigator } from "@/components/world/IslandNavigator";
+import { ReturnHomeSeal } from "@/components/world/ReturnHomeSeal";
 import type {
   SpriteRobotPhase,
   SpriteRobotVerdict,
@@ -41,7 +42,14 @@ interface Props {
  * gusts also tilt the island via `useWindRoll`.
  */
 export function IslandPage({ id, fixture }: Props) {
-  const { phase, findings, prMeta } = useIslandAnalysisWithFallback(id, fixture);
+  const {
+    phase,
+    findings,
+    prMeta,
+    isAnalyzing,
+    characterError,
+    globalError,
+  } = useIslandAnalysisWithFallback(id, fixture);
   const reduced = usePrefersReducedMotion();
   const windRoll = useWindRoll();
 
@@ -167,12 +175,20 @@ export function IslandPage({ id, fixture }: Props) {
         <IslandNavigator current={id} />
       </div>
 
+      {/* Escape hatch back to the council hall — fixed top-right, above
+          the panel and arrow controls so it remains reachable from any
+          island regardless of layout. */}
+      <ReturnHomeSeal />
+
       {/* Right ~40vw panel. */}
       <CharacterPanel
         characterId={id}
         phase={phase}
         findings={findings}
         prMeta={prMeta}
+        isAnalyzing={isAnalyzing}
+        characterError={characterError}
+        globalError={globalError}
       />
 
       {/* Responsive column geometry. 60/40 default, 55/45 below 1100px,

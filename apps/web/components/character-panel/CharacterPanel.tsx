@@ -13,6 +13,12 @@ interface Props {
   phase: "scanning" | "analyzing" | "done";
   findings: Finding[];
   prMeta: { title: string; repo: string; pr_number: number };
+  /** True while this character's agent is still running on the backend. */
+  isAnalyzing?: boolean;
+  /** Per-character backend error (this agent failed). */
+  characterError?: string | null;
+  /** Top-level error (couldn't even start). */
+  globalError?: string | null;
 }
 
 // 8x8 fbm noise texture, used as a subtle grain. Pre-encoded once.
@@ -42,6 +48,9 @@ export function CharacterPanel({
   phase,
   findings,
   prMeta,
+  isAnalyzing = phase !== "done",
+  characterError = null,
+  globalError = null,
 }: Props) {
   const c = CHARACTERS[characterId];
 
@@ -113,6 +122,9 @@ export function CharacterPanel({
           phase={phase}
           accent={c.accent}
           findingCount={findings.length}
+          isAnalyzing={isAnalyzing}
+          characterError={characterError}
+          globalError={globalError}
         />
       </div>
 

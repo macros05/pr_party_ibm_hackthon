@@ -70,11 +70,22 @@ cd pr_party_ibm_hackthon
 ### 2. Configure environment
 
 ```bash
+# Backend env (required) — watsonx + GitHub
 cp .env.example backend/.env
 # Edit backend/.env with your watsonx + GitHub credentials
 ```
 
-> ⚠️ **Never commit `.env`.** It is gitignored. See [SECURITY_AUDIT.md](SECURITY_AUDIT.md).
+The frontend defaults to `http://localhost:8000` for the API and needs **no** env file for normal use. Only create `apps/web/.env.local` if you need to override the API URL or run the optional sprite/island regeneration scripts:
+
+```bash
+# Frontend env (optional)
+# - NEXT_PUBLIC_API_URL — only if backend is not on localhost:8000
+# - PIXELLAB_API_TOKEN  — only for scripts/pixellab/ (sprite regen)
+# - GEMINI_API_KEY      — only for scripts/gemini/  (island art regen)
+# See the bottom of .env.example for the full template.
+```
+
+> ⚠️ **Never commit `.env` or `.env.local`.** Both are gitignored. See [SECURITY_AUDIT.md](SECURITY_AUDIT.md) for credential hygiene and rotation guidance.
 
 ### 3. Run the backend
 

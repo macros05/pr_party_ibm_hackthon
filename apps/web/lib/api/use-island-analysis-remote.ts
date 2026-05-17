@@ -5,11 +5,19 @@ import type { CharacterId, Finding } from "@/types/encounter";
 import type { IslandState } from "@/lib/demo/character-analysis";
 import { fetchEncounter, checkBackendHealth } from "./client";
 
-/**
- * Hook that fetches analysis from the backend API.
- * Maintains the same interface as useIslandAnalysis for drop-in replacement.
- * Falls back to demo if backend is unavailable.
- */
+// Module-level cache: keyed by fixture/url, shared across all island navigations
+const encounterCache = new Map<string, ReturnType<typeof fetchEncounter> extends Promise<infer T> ? T : never>();
+let backendHealthCache: boolean | null = null;
+
+const CATEGORY_MAP: Record<CharacterId, string> = {
+  aegis: "security",
+  schema: "database",
+  pixel: "ux",
+  atlas: "architecture",
+  echo: "tests",
+  codex: "documentation",
+};
+
 export function useIslandAnalysisRemote(
   id: CharacterId,
   fixture: string = "pr1"
@@ -25,15 +33,42 @@ export function useIslandAnalysisRemote(
     },
   });
 
-  const [backendAvailable, setBackendAvailable] = React.useState<
-    boolean | null
-  >(null);
+  const [backendAvailable, setBackendAvailable] = React.useState<boolean | null>(
+    backendHealthCache
+  );
   const timeoutsRef = React.useRef<number[]>([]);
 
   const clear = React.useCallback(() => {
     for (const t of timeoutsRef.current) window.clearTimeout(t);
     timeoutsRef.current = [];
   }, []);
+
+  const applyResult = React.useCallback(
+    (result: (typeof encounterCache extends Map<string, infer V> ? V : never), cancelled: { v: boolean }) => {
+      const allFindings = result.findings as Finding[];
+      const characterFindings = allFindings.filter(
+        (f) => f.category === CATEGORY_MAP[id]
+      );
+
+      setState((s) => ({ ...s, prMeta: result.pr_meta }));
+
+      const SPACING_MS = 2400;
+      characterFindings.forEach((finding, i) => {
+        const t = window.setTimeout(() => {
+          if (cancelled.v) return;
+          setState((s) => ({ ...s, findings: [...s.findings, finding] }));
+        }, 1800 + i * SPACING_MS);
+        timeoutsRef.current.push(t);
+      });
+
+      const doneT = window.setTimeout(() => {
+        if (cancelled.v) return;
+        setState((s) => ({ ...s, phase: "done" }));
+      }, 1800 + characterFindings.length * SPACING_MS + 1200);
+      timeoutsRef.current.push(doneT);
+    },
+    [id]
+  );
 
   React.useEffect(() => {
     clear();
@@ -48,98 +83,66 @@ export function useIslandAnalysisRemote(
       },
     });
 
-    let cancelled = false;
+    const cancelled = { v: false };
 
-    // Check backend health first
-    checkBackendHealth().then((available) => {
-      if (cancelled) return;
-      setBackendAvailable(available);
+    const run = async () => {
+      // Health check (cached)
+      if (backendHealthCache === null) {
+        backendHealthCache = await checkBackendHealth();
+      }
+      if (cancelled.v) return;
 
-      if (!available) {
-        // Backend not available, will fall back to demo
+      setBackendAvailable(backendHealthCache);
+
+      if (!backendHealthCache) {
         console.warn(
           "Backend not available, falling back to demo data. Start backend with: cd backend && uvicorn app.main:app --reload"
         );
         return;
       }
 
-      // Simulate scanning phase
-      const scanTimeout = window.setTimeout(() => {
-        if (cancelled) return;
+      // Scanning phase
+      const scanT = window.setTimeout(() => {
+        if (cancelled.v) return;
         setState((s) => ({ ...s, phase: "analyzing" }));
       }, 1600);
-      timeoutsRef.current.push(scanTimeout);
+      timeoutsRef.current.push(scanT);
 
-      // Fetch from backend
-      fetchEncounter(fixture)
-        .then((result) => {
-          if (cancelled) return;
+      try {
+        // Use cached result if available, otherwise fetch
+        let result = encounterCache.get(fixture);
+        if (!result) {
+          result = await fetchEncounter(fixture);
+          encounterCache.set(fixture, result);
+        }
+        if (cancelled.v) return;
+        applyResult(result, cancelled);
+      } catch (error) {
+        console.error("Failed to fetch encounter from backend:", error);
+        backendHealthCache = false;
+        setBackendAvailable(false);
+      }
+    };
 
-          // The adapted result already has findings as Finding[]
-          // We need to filter by character since backend returns all findings
-          const allFindings = result.findings as Finding[];
-          
-          // Filter findings for this character by checking the category
-          // (since adaptFinding infers category from character_id)
-          const categoryMap: Record<CharacterId, string> = {
-            aegis: "security",
-            schema: "database",
-            pixel: "ux",
-            atlas: "architecture",
-            echo: "tests",
-            codex: "documentation",
-          };
-          
-          const targetCategory = categoryMap[id];
-          const characterFindings = allFindings.filter(
-            (f) => f.category === targetCategory
-          );
-
-          // Simulate findings arriving with spacing
-          const SPACING_MS = 2400;
-          characterFindings.forEach((finding, i) => {
-            const timeout = window.setTimeout(() => {
-              if (cancelled) return;
-              setState((s) => ({
-                ...s,
-                findings: [...s.findings, finding],
-              }));
-            }, 1800 + i * SPACING_MS);
-            timeoutsRef.current.push(timeout);
-          });
-
-          // Set done phase
-          const doneTimeout = window.setTimeout(() => {
-            if (cancelled) return;
-            setState((s) => ({ ...s, phase: "done" }));
-          }, 1800 + characterFindings.length * SPACING_MS + 1200);
-          timeoutsRef.current.push(doneTimeout);
-
-          // Update PR meta
-          setState((s) => ({
-            ...s,
-            prMeta: result.pr_meta,
-          }));
-        })
-        .catch((error) => {
-          console.error("Failed to fetch encounter from backend:", error);
-          setBackendAvailable(false);
-        });
-    });
+    run();
 
     return () => {
-      cancelled = true;
+      cancelled.v = true;
       clear();
     };
-  }, [id, fixture, clear]);
+  }, [id, fixture, clear, applyResult]);
 
   return { state, backendAvailable };
 }
 
 /**
- * Hook that combines remote and demo analysis.
- * Tries backend first, falls back to demo if unavailable.
+ * Clear the encounter cache (e.g. when the user submits a new PR URL).
  */
+export function clearEncounterCache() {
+  encounterCache.clear();
+  backendHealthCache = null;
+}
+
 export function useIslandAnalysisWithFallback(
   id: CharacterId,
   fixture: string = "pr1"
@@ -149,28 +152,23 @@ export function useIslandAnalysisWithFallback(
     fixture
   );
 
-  // Lazy-load demo hook only if needed
   const [demoState, setDemoState] = React.useState<IslandState | null>(null);
 
   React.useEffect(() => {
     if (backendAvailable === false && !demoState) {
-      // Backend failed, load demo data statically
-      import("@/lib/demo/character-analysis").then(
-        ({ getCharacterFindings }) => {
-          import("@/lib/demo/encounter").then(({ DEMO_PAYLOAD }) => {
-            const findings = getCharacterFindings(id);
-            setDemoState({
-              phase: "done",
-              findings,
-              prMeta: DEMO_PAYLOAD.pr_meta,
-            });
+      import("@/lib/demo/character-analysis").then(({ getCharacterFindings }) => {
+        import("@/lib/demo/encounter").then(({ DEMO_PAYLOAD }) => {
+          const findings = getCharacterFindings(id);
+          setDemoState({
+            phase: "done",
+            findings,
+            prMeta: DEMO_PAYLOAD.pr_meta,
           });
-        }
-      );
+        });
+      });
     }
   }, [backendAvailable, id, demoState]);
 
-  // Return remote state if backend is available or checking, demo state if backend failed
   if (backendAvailable === false && demoState) {
     return demoState;
   }

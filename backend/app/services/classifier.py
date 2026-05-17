@@ -3,7 +3,7 @@ Findings classifier - assigns character_id to validated findings.
 Uses rule-based logic to match findings to specialist characters.
 """
 from app.logging_config import get_logger
-from app.models import CharacterId, FindingValidated, Severity
+from app.models import CharacterId, FindingValidated
 
 logger = get_logger(__name__)
 
@@ -64,20 +64,48 @@ class FindingsClassifier:
         text_lower = text.lower()
         return sum(1 for keyword in keywords if keyword in text_lower)
     
+    # Direct mapping from model-assigned category to character (with common aliases)
+    CATEGORY_TO_CHARACTER: dict[str, str] = {
+        "security": "aegis",
+        "database": "schema",
+        "db": "schema",
+        "ux": "pixel",
+        "ui": "pixel",
+        "architecture": "atlas",
+        "arch": "atlas",
+        "tests": "echo",
+        "test": "echo",
+        "testing": "echo",
+        "documentation": "codex",
+        "docs": "codex",
+        "doc": "codex",
+    }
+
     def classify_finding(self, finding: FindingValidated) -> CharacterId:
         """
         Assign a character to a finding based on content analysis.
-        
+
         Args:
             finding: Validated finding to classify
-        
+
         Returns:
             Character ID that best matches the finding
         """
-        # Combine title and description for analysis
+        # Use model-assigned category if it's a known category
+        model_category = getattr(finding, "category", "general")
+        if model_category in self.CATEGORY_TO_CHARACTER:
+            character_id = self.CATEGORY_TO_CHARACTER[model_category]
+            logger.info(
+                "finding_classified_by_category",
+                finding_id=finding.id,
+                character_id=character_id,
+                model_category=model_category
+            )
+            return character_id  # type: ignore
+
+        # Fall back to keyword scoring when model category is unknown
         text = f"{finding.title} {finding.description}".lower()
-        
-        # Calculate scores for each character
+
         scores = {
             "aegis": self._calculate_keyword_score(text, self.AEGIS_KEYWORDS),
             "schema": self._calculate_keyword_score(text, self.SCHEMA_KEYWORDS),
@@ -86,29 +114,26 @@ class FindingsClassifier:
             "echo": self._calculate_keyword_score(text, self.ECHO_KEYWORDS),
             "codex": self._calculate_keyword_score(text, self.CODEX_KEYWORDS),
         }
-        
-        # Get character with highest score
+
         character_id = max(scores.items(), key=lambda x: x[1])[0]
-        
-        # Fallback logic if no keywords matched
+
         if scores[character_id] == 0:
-            # Use severity-based fallback
             if finding.severity == "critical":
-                character_id = "aegis"  # Security issues are often critical
+                character_id = "aegis"
             elif finding.severity == "high":
-                character_id = "atlas"  # Architecture issues
+                character_id = "atlas"
             elif finding.severity == "medium":
-                character_id = "schema"  # DB/performance issues
+                character_id = "schema"
             else:
-                character_id = "codex"  # Documentation issues
-        
+                character_id = "codex"
+
         logger.info(
-            "finding_classified",
+            "finding_classified_by_keywords",
             finding_id=finding.id,
             character_id=character_id,
             scores=scores
         )
-        
+
         return character_id  # type: ignore
     
     def classify_findings(

@@ -3,6 +3,7 @@ Voice rewriter service - uses Granite to add character personality to findings.
 Each character has a unique voice and perspective.
 """
 from app.clients.watsonx_client import get_watsonx_client
+from app.config import settings
 from app.logging_config import get_logger
 from app.models import CharacterId, Finding, FindingValidated
 
@@ -97,25 +98,47 @@ Your voiced comment (2-3 sentences):"""
         )
         
         prompt = self._build_voice_prompt(character_id, finding)
-        
+
         try:
             dialogue = await self.watsonx.generate_text(
-                model_id="ibm/granite-3-3-8b-instruct",
+                model_id=settings.granite_model_id,
                 prompt=prompt,
-                max_tokens=256,  # Short responses
-                temperature=0.8  # More creative for personality
+                max_tokens=150,
+                temperature=0.8
             )
-            
-            # Clean up response
-            dialogue = dialogue.strip()
-            
+
+            # Strip whitespace and surrounding quotes
+            dialogue = dialogue.strip().strip('"').strip("'").strip()
+
+            # Truncate at hallucination markers — the model tends to continue
+            # the conversation with "Your turn!" or new finding prompts
+            stop_markers = [
+                "Your turn", "your turn",
+                "Here is a new", "Here is another",
+                "\nTitle:", "\nDescription:",
+                "How was that", "Was that",
+                "\nI,",  # model narrating itself: "I, Aegis..."
+            ]
+            for marker in stop_markers:
+                idx = dialogue.find(marker)
+                if idx > 0:
+                    dialogue = dialogue[:idx].strip().rstrip('"').strip()
+                    break
+
+            # Ensure it doesn't end mid-sentence — keep up to the last sentence-ending punctuation
+            for punc in (".", "!", "?"):
+                last = dialogue.rfind(punc)
+                if last > len(dialogue) // 2:  # only trim if we keep most of the text
+                    dialogue = dialogue[:last + 1]
+                    break
+
             logger.info(
                 "voice_rewrite_complete",
                 character_id=character_id,
                 finding_id=finding.id,
                 dialogue_length=len(dialogue)
             )
-            
+
             return dialogue
             
         except Exception as e:

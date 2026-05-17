@@ -15,6 +15,10 @@ from app.models import FindingRaw, FindingValidated
 
 logger = get_logger(__name__)
 
+# Stores the last raw model response for debugging via /debug/last-response
+_last_searcher_response: str = ""
+_last_searcher_error: str = ""
+
 
 class BobClient:
     """
@@ -96,6 +100,69 @@ class BobClient:
             )
             raise
     
+    # One prompt file per character — category is forced to match the character
+    _CHARACTER_PROMPTS = [
+        ("character_aegis.md",  "A",  "security"),
+        ("character_schema.md", "SC", "database"),
+        ("character_pixel.md",  "P",  "ux"),
+        ("character_atlas.md",  "AT", "architecture"),
+        ("character_echo.md",   "E",  "tests"),
+        ("character_codex.md",  "C",  "documentation"),
+    ]
+
+    async def _run_character_searcher(
+        self,
+        prompt_file: str,
+        diff: str,
+        id_prefix: str,
+        forced_category: str,
+    ) -> tuple[str, list[dict]]:
+        """Run one character-specific searcher and return (raw_response, findings_dicts)."""
+        import re as _re
+        from pathlib import Path
+
+        project_root = Path(__file__).parent.parent.parent.parent
+        with open(project_root / "prompts" / prompt_file, "r", encoding="utf-8") as f:
+            prompt_template = f.read()
+
+        prompt = prompt_template + f"\n\n{diff}\n\nReturn JSON now:"
+        response = await self._call_granite(prompt, max_tokens=2048)
+
+        raw_findings: list[dict] = []
+        try:
+            json_str = response.strip()
+            if "```json" in json_str:
+                s = json_str.find("```json") + 7
+                e = json_str.find("```", s)
+                json_str = json_str[s:e].strip()
+            elif "```" in json_str:
+                s = json_str.find("```") + 3
+                e = json_str.find("```", s)
+                json_str = json_str[s:e].strip()
+
+            if not json_str.startswith("{"):
+                m = _re.search(r'\{', json_str)
+                if m:
+                    json_str = json_str[m.start():]
+            if not json_str.endswith("}"):
+                m = _re.search(r'\}(?=[^}]*$)', json_str)
+                if m:
+                    json_str = json_str[:m.end()]
+
+            data = json.loads(json_str)
+            raw_findings = data.get("findings", [])
+
+            # Force category and re-number IDs to avoid collisions
+            for i, f in enumerate(raw_findings, 1):
+                f["id"] = f"{id_prefix}{i:03d}"
+                f["category"] = forced_category
+
+        except Exception as e:
+            logger.warning("character_searcher_parse_failed",
+                           prompt_file=prompt_file, error=str(e))
+
+        return response, raw_findings
+
     async def searcher_pass(
         self,
         diff: str,
@@ -103,86 +170,66 @@ class BobClient:
         context_files: dict[str, str]
     ) -> list[FindingRaw]:
         """
-        Searcher Pass: Analyze diff and produce raw findings using Granite.
-        
-        Args:
-            diff: Git diff content
-            package_json: package.json content for dependency context
-            context_files: Dict of filename -> content for imported modules
-        
-        Returns:
-            List of raw findings (no character assignment yet)
+        Searcher Pass: run one specialised prompt per character in parallel.
+        Findings arrive pre-classified — no separate classifier step needed.
         """
+        import asyncio as _asyncio
+
         logger.info(
             "searcher_pass_start",
             diff_length=len(diff),
             context_files_count=len(context_files)
         )
-        
-        # Load simplified searcher prompt template
-        from pathlib import Path
-        import re
-        
-        project_root = Path(__file__).parent.parent.parent.parent
-        searcher_path = project_root / "prompts" / "bob_searcher_simple.md"
-        
-        with open(searcher_path, "r", encoding="utf-8") as f:
-            prompt_template = f.read()
-        
-        # Simplified prompt - just diff, no complex context
-        prompt = prompt_template + f"\n\n{diff}\n\nReturn JSON now:"
-        
-        # Call Granite with explicit JSON instruction
-        response = await self._call_granite(prompt, max_tokens=4096)
-        
-        # Parse JSON response with multiple extraction strategies
-        try:
-            json_str = response.strip()
-            
-            # Strategy 1: Extract from markdown code block
-            if "```json" in json_str:
-                json_start = json_str.find("```json") + 7
-                json_end = json_str.find("```", json_start)
-                json_str = json_str[json_start:json_end].strip()
-            elif "```" in json_str:
-                # Generic code block
-                json_start = json_str.find("```") + 3
-                json_end = json_str.find("```", json_start)
-                json_str = json_str[json_start:json_end].strip()
-            
-            # Strategy 2: Find JSON object boundaries
-            if not json_str.startswith("{"):
-                # Try to find the first {
-                match = re.search(r'\{', json_str)
-                if match:
-                    json_str = json_str[match.start():]
-            
-            if not json_str.endswith("}"):
-                # Try to find the last }
-                match = re.search(r'\}(?=[^}]*$)', json_str)
-                if match:
-                    json_str = json_str[:match.end()]
-            
-            # Parse JSON
-            findings_data = json.loads(json_str)
-            findings = [FindingRaw(**f) for f in findings_data.get("findings", [])]
-            
-            logger.info(
-                "searcher_pass_complete",
-                findings_count=len(findings)
-            )
-            
-            return findings
-            
-        except (json.JSONDecodeError, ValueError) as e:
-            logger.error(
-                "searcher_parse_error",
-                error=str(e),
-                response_preview=response[:200]
-            )
-            # Return empty findings instead of crashing
-            logger.warning("returning_empty_findings_due_to_parse_error")
-            return []
+
+        # Run all 6 character prompts concurrently
+        results = await _asyncio.gather(*[
+            self._run_character_searcher(prompt_file, diff, id_prefix, category)
+            for prompt_file, id_prefix, category in self._CHARACTER_PROMPTS
+        ])
+
+        # Build combined debug response
+        global _last_searcher_response, _last_searcher_error
+        _last_searcher_response = "\n\n".join(
+            f"=== {pf.replace('character_', '').replace('.md', '').upper()} ===\n{resp}"
+            for (pf, _, _), (resp, _) in zip(self._CHARACTER_PROMPTS, results)
+        )
+        _last_searcher_error = ""
+
+        all_raw = [finding for _, findings in results for finding in findings]
+
+        damage_map = {"critical": 90, "high": 60, "medium": 30, "low": 10}
+        damage_type_map = {"critical": "crit_hit", "high": "hit", "medium": "graze", "low": "whisper"}
+
+        def normalize(f: dict) -> dict:
+            severity = f.get("severity", "low")
+            return {
+                "id": f.get("id", "F000"),
+                "title": f.get("title", ""),
+                "description": f.get("explanation") or f.get("description", ""),
+                "severity": severity,
+                "damage": f.get("damage") or damage_map.get(severity, 10),
+                "damage_type": f.get("damage_type") or damage_type_map.get(severity, "whisper"),
+                "file_path": f.get("file_path") or f.get("file", "unknown"),
+                "line_start": f.get("line_start", 1),
+                "line_end": f.get("line_end", 1),
+                "code_snippet": f.get("code_snippet", ""),
+                "category": f.get("category", "general"),
+            }
+
+        findings: list[FindingRaw] = []
+        for f in all_raw:
+            try:
+                findings.append(FindingRaw(**normalize(f)))
+            except Exception as e:
+                logger.warning("normalize_failed", error=str(e), finding=str(f))
+
+        counts = {
+            cat: sum(1 for f in findings if f.category == cat)
+            for _, _, cat in self._CHARACTER_PROMPTS
+        }
+        logger.info("searcher_pass_complete", findings_count=len(findings), **counts)
+
+        return findings
     
     async def validator_pass(
         self,
@@ -225,7 +272,8 @@ class BobClient:
         # Call Granite
         response = await self._call_granite(prompt, max_tokens=8192)
         
-        # Parse JSON response
+        # Parse JSON response - validator returns {id, validated, confidence, ...}
+        # We merge these decisions with the original raw findings
         try:
             if "```json" in response:
                 json_start = response.find("```json") + 7
@@ -233,25 +281,45 @@ class BobClient:
                 json_str = response[json_start:json_end].strip()
             else:
                 json_str = response.strip()
-            
+
             validated_data = json.loads(json_str)
-            findings = [FindingValidated(**f) for f in validated_data.get("findings", [])]
-            
+            validation_by_id = {
+                v["id"]: v
+                for v in validated_data.get("findings", [])
+                if isinstance(v, dict) and "id" in v
+            }
+
+            # Apply validator decisions to the original raw findings
+            findings: list[FindingValidated] = []
+            for raw in findings_raw:
+                decision = validation_by_id.get(raw.id)
+                if decision is None or decision.get("validated", True):
+                    severity = (decision or {}).get("severity_adjustment") or raw.severity
+                    notes = (decision or {}).get("validation_notes", "")
+                    data = raw.model_dump()
+                    data["severity"] = severity
+                    data["validation_notes"] = notes
+                    findings.append(FindingValidated(**data))
+
             logger.info(
                 "validator_pass_complete",
                 findings_validated_count=len(findings),
                 filtered_count=len(findings_raw) - len(findings)
             )
-            
+
             return findings
-            
-        except (json.JSONDecodeError, ValueError) as e:
-            logger.error(
-                "validator_parse_error",
+
+        except Exception as e:
+            logger.warning(
+                "validator_parse_failed_using_raw_findings",
                 error=str(e),
-                response_preview=response[:500]
+                raw_count=len(findings_raw)
             )
-            raise ValueError(f"Failed to parse validator response: {e}")
+            # Model couldn't validate — promote raw findings directly
+            return [
+                FindingValidated(**f.model_dump(), validation_notes="validator skipped")
+                for f in findings_raw
+            ]
 
 
 # Global client instance

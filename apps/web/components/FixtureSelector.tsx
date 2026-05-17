@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { clearEncounterCache } from "@/lib/api/use-island-analysis-remote";
 
 interface FixtureOption {
   id: string;
@@ -72,7 +73,8 @@ export function FixtureSelector() {
     }
 
     setIsAnalyzing(true);
-    
+    clearEncounterCache();
+
     // Navigate to analysis page with GitHub URL
     const encodedUrl = encodeURIComponent(githubUrl);
     router.push(`/island/aegis?github_url=${encodedUrl}`);

@@ -70,6 +70,7 @@ class FindingRaw(BaseModel):
     line_start: int = Field(ge=1)
     line_end: int = Field(ge=1)
     code_snippet: str
+    category: str = Field(default="general", description="Category from model (security, database, ux, architecture, tests, documentation)")
 
 
 class FindingValidated(FindingRaw):

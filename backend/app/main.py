@@ -62,6 +62,17 @@ async def root():
     }
 
 
+@app.get("/debug/last-response")
+async def debug_last_response():
+    """Return the last raw model response from the searcher pass."""
+    from app.clients.bob_client import _last_searcher_response, _last_searcher_error
+    return {
+        "response_length": len(_last_searcher_response),
+        "parse_error": _last_searcher_error or None,
+        "raw_response": _last_searcher_response,
+    }
+
+
 @app.get("/fixtures")
 async def list_fixtures():
     """List available PR fixtures for testing."""
@@ -288,6 +299,7 @@ async def analyze_pr_sync(request: AnalyzeRequest) -> EncounterResult:
                         line_start=raw_finding["line_start"],
                         line_end=raw_finding["line_end"],
                         code_snippet=raw_finding["code_snippet"],
+                        category=raw_finding.get("category", "general"),
                         validation_notes=validated_data["validation_notes"]
                     )
                     findings_validated.append(finding)

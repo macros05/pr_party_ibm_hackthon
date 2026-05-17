@@ -8,6 +8,12 @@ Find these issues:
 3. Loading doesn't disable — async action sets loading state but the button or submit element is NOT disabled={isLoading} during the request
 4. Missing loading feedback — async fetch/API call with no spinner, skeleton, or disabled state while waiting
 
+GROUNDING RULES (mandatory — findings that violate these will be dropped):
+- `file` MUST be a path that appears in a `diff --git a/... b/<path>` header below. Do NOT invent paths like `frontend/UserDashboard.tsx` or any file not in the diff.
+- `line_start` MUST be a line that appears with `+` in the diff (a line this PR adds or modifies). Do NOT guess line numbers.
+- `code_snippet` MUST be copied verbatim from a `+` line in the diff.
+- If you cannot ground a finding in the actual diff, OMIT it. Returning fewer findings is correct; inventing them is not.
+
 Report every issue found. If none: {"findings": []}
 
 Diff:

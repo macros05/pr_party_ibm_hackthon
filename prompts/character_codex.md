@@ -7,6 +7,12 @@ Find these issues:
 2. Outdated reference — README or comment references an old endpoint URL, function name, or behavior that was renamed/changed in this PR
 3. Missing JSDoc — a new exported function or class has no JSDoc comment explaining its purpose, parameters, and return value
 
+GROUNDING RULES (mandatory — findings that violate these will be dropped):
+- `file` MUST be a path that appears in a `diff --git a/... b/<path>` header below. Do NOT invent paths like `frontend/UserDashboard.tsx` or any file not in the diff.
+- `line_start` MUST be a line that appears with `+` in the diff (a line this PR adds or modifies). Do NOT guess line numbers.
+- `code_snippet` MUST be copied verbatim from a `+` line in the diff.
+- If you cannot ground a finding in the actual diff, OMIT it. Returning fewer findings is correct; inventing them is not.
+
 Report every issue found. If none: {"findings": []}
 
 Diff:

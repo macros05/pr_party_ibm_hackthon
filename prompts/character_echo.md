@@ -8,6 +8,12 @@ Find these issues:
 3. Missing test for new code — a new exported function or API route was added but no test covers it
 4. Meaningless assertion — test calls a function and only asserts toBeDefined() or not.toThrow() without checking actual return values
 
+GROUNDING RULES (mandatory — findings that violate these will be dropped):
+- `file` MUST be a path that appears in a `diff --git a/... b/<path>` header below. Do NOT invent paths like `frontend/UserDashboard.tsx` or any file not in the diff.
+- `line_start` MUST be a line that appears with `+` in the diff (a line this PR adds or modifies). Do NOT guess line numbers.
+- `code_snippet` MUST be copied verbatim from a `+` line in the diff.
+- If you cannot ground a finding in the actual diff, OMIT it. Returning fewer findings is correct; inventing them is not.
+
 Report every issue found. If none: {"findings": []}
 
 Diff:

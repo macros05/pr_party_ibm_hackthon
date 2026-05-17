@@ -138,14 +138,31 @@ class GitHubClient:
                 author=pr_author
             )
             
-            # Fetch diff
+            # Fetch diff. GitHub honours the Accept header over the .diff
+            # extension — sending the default `application/vnd.github.v3+json`
+            # would make this request return JSON metadata, not a diff, and
+            # downstream parsing would silently see zero files. The diff media
+            # type forces the actual unified-diff payload.
             diff_url = f"{pr_url}.diff"
+            diff_headers = {**headers, "Accept": "application/vnd.github.v3.diff"}
             logger.debug("fetching_diff", url=diff_url)
-            
-            diff_response = await client.get(diff_url, headers=headers)
+
+            diff_response = await client.get(diff_url, headers=diff_headers)
             diff_response.raise_for_status()
             diff = diff_response.text
-            
+
+            if not diff.lstrip().startswith("diff --git"):
+                logger.error(
+                    "diff_response_not_a_diff",
+                    content_type=diff_response.headers.get("content-type"),
+                    body_preview=diff[:200],
+                )
+                raise RuntimeError(
+                    "GitHub returned a non-diff payload for the .diff URL "
+                    f"(content-type={diff_response.headers.get('content-type')!r}). "
+                    "This usually means an Accept header override."
+                )
+
             logger.info("diff_fetched", size_bytes=len(diff))
             
             # Fetch package.json if exists
